@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>http://cwyan.student.ust.hk</loc>
+    <priority>0.8</priority>
+    <lastmod>2019-03-25T03:11:00+00:00</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>http://cwyan.student.ust.hk/about_me</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>http://cwyan.student.ust.hk/interesting_works</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>http://cwyan.student.ust.hk/projects/noise_generator</loc>
+  </url> 
+  <url>
+    <loc>http://cwyan.student.ust.hk/projects/svg_game/game.html</loc>
+  </url>   
+  <url>
+    <loc>http://cwyan.student.ust.hk/links</loc>
+  </url>  
+</urlset>

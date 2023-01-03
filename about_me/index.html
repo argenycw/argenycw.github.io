@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" charset="UTF-8">
+<!-- Pineapple favicon -->
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.png"/>
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!-- Bootstrap -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<!-- animate on scroll https://michalsnik.github.io/aos/ -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- Devicon -->
+<link rel="stylesheet" href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css" />
+<link rel="stylesheet" href="/css/styles.css" />
+<title>About Me</title>
+<style>
+html {
+	overflow-x: hidden;
+}
+
+.affix {
+	top: 0px;
+}
+
+#left-bar {
+	font-family: "Ubuntu";
+	background-color: rgb(232,246,250);
+	color: rgb(15,60,80);
+	padding-bottom: 30px;
+}
+
+#name-info {
+	text-align: center;
+	color: rgb(20,80,120);
+}
+
+#contact-table td {
+	padding: 3px 10px 3px 0px;
+}
+
+#contact-table tr td:first-child {
+	text-align: center;
+}
+
+#myself-pic-holder {
+	padding: 10px 50px 10px 50px;
+}
+
+.in-progress {
+	border: 1px solid gray;
+	text-align: center;
+	color: #E44;
+}
+
+.col-no-padding {
+	padding: 0 0 0 0;
+}
+
+.sidebar {
+	top: 56px;
+	left: 0;
+	position: sticky;
+	position: -webkit-sticky;
+	height: calc(100vh - 56px);
+	overflow-x: hidden;
+	overflow-y: auto;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+	z-index: 0;
+}
+
+.dark-background {
+	color: black;
+	background-color: rgb(248,249,250);
+}
+
+.nav-section {
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+
+hr.blue-line {
+	border-top: 1.5px solid rgb(20, 80, 120);
+}
+
+hr.double {
+    overflow: visible; /* For IE */
+    padding: 0;
+    border: none;
+    border-top: medium double #333;
+    color: #333;
+    text-align: center;
+}
+
+.ag-section {
+	margin: 5em 0 5em 0;
+	font-size: 16px;
+}
+
+.ag-section-title {
+	font-family: "Ubuntu";
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	color: #666;
+}
+
+.ag-section p {
+	padding: 10px 10px 10px 10px;
+}
+
+.gray-filter img {
+	filter: gray; /* IE5+ */
+	-webkit-filter: grayscale(1); /* Webkit Nightlies & Chrome Canary */
+	-webkit-transition: all .5s ease-in-out;  
+	cursor: pointer;
+}
+
+.gray-filter img.colorable:hover {
+	filter: none;
+	-webkit-filter: grayscale(0);
+	-webkit-transform: scale(1.01);
+}
+
+@media only screen and (max-width: 992px) {
+.length-control {
+	display: none;
+}
+}
+
+@media only screen and (max-width: 768px) {
+.sidebar {
+	top: 0;
+	position: relative;
+}
+.length-control {
+	display: block;
+}
+}
+
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script>
+$(document).ready(function(){
+	$(function(){
+		$("#nav-bar").load("../nav-bar.html");
+		$("#footer").load("../footer.html");
+	});
+	// initialization on all bootstrap tooltips
+	$('[data-toggle="tooltip"]').tooltip();
+	// initializing animate-on-scroll
+	AOS.init();
+});
+</script>
+</head>
+<body class="d-flex flex-column h-100" id="about-me">
+	<div id="nav-bar"></div>
+	<div class="container-fluid nav-bar-push">
+		<div class="row" >
+			<nav class="col-sm col-md-4 col-lg-3 sidebar" id="left-bar">
+				<div class="sidebar-sticky">
+					<div class="nav-section unselectable" id="name-info">
+						<h1>AG</h1>
+						<h3>甄&emsp;釗&emsp;煒</h3>
+						<h3>YAN CHIU WAI</h3>
+					</div>
+					<hr class="blue-line" />
+					<div class="nav-section" id="contact-info">
+						<h4>CONTACT</h4>
+						<table id="contact-table">
+						<tr><td><i class="fa fa-envelope"></i></td><td><a href="mailto:argencwyan@gmail.com">argencwyan@gmail.com</a></td></tr>
+						<tr><td><i class="fas fa-file-alt"></i></td><td><a href="YanChiuWai_cv.pdf">Download My CV</a></td><tr>
+						<tr><td><i class="fa fa-graduation-cap"></i></td><td><a href="YanChiuWai_transcript.pdf">Academic Transcript</a></td></tr>
+						</table>
+					</div>
+					<div class="nav-section">
+						<h4>EDUCATION</h4>
+						<p>
+						MPhil in Computer Science (2020 - 2022), HKUST <br>
+						Research Topic: <span style="color: #888">Adversarial Attack, Deep Learning, Computer Vision</span>
+						<p>
+						<p>
+						BEng in Computer Science (2016 - 2020), HKUST
+						</p>
+					</div>
+					<hr class="blue-line" data-spy="affix" data-offset-top="80" />
+				</div>
+			</nav>
+			<main role="main" class="dark-background col-no-padding col-12 col-md-8 col-lg-9 ml-sm-auto">
+				<div class="container">
+					<div class="jumbotron text-center unselectable ag-section" style="background-color: inherit;">
+						<h4 class="jumbotron-heading">“Am I supposed to say something cool here?”</h4>
+						<p class="text-muted" style="text-align:right; padding-right:10vw;">― YAN Chiu Wai</p>
+					</div>
+					<div class="row ag-section">
+						<div id="myself-pic-holder" class="col-md-6">
+							<img class="rounded-circle" src="../image/argen_pic01.jpg" style="width:100%;" />
+						</div>
+						<div class="col-md-6">
+							<p>Hello World!</p>
+							<p>This is AG, currently a graduate student who has just been approved for graduation.</p>
+							<p>
+								I awarded my bachelor degree from HKUST, Hong Kong in 2020. During the study, I discovered the huge potential 
+								of Machine Learning in different applications nowadays. Eager to dig deeper into the field while having a promising academic performance, 
+								I initiated my research journey in the same university then. 
+							</p>
+							<div class="length-control">
+							<!-- WW91IHRoaW5rIHlvdSBhcmUgcGxheWluZyBDYXB0dXJlLVRoZS1GbGFnLCBhcmVuJ3QgeW91Pw== -->
+							<p>I enjoy adding eastereggs and boring stuffs inside my page. Hope you enjoy finding and playing them as well.</p>
+							</div>
+						</div>
+					</div>
+					<div data-aos="fade-left" class="ag-section">
+						<div class="col-12 text-center unselectable" id="about-me-projects"><h4 class="ag-section-title">Projects</h4></div>
+						<hr>
+						<div class="row">
+							<div class="col-md-6">
+								<p> As an enthusiastic workaholic in developing projects as well as the research works, development of different 
+									interesting projects has already been one of my leisure activities. This is also the reason why this website
+									is created.
+								</p>
+								<p>
+									Apart from showcasing my skills and ability, the project list here also archives my past works.
+									To record that, some time ago in somewhere, there was a student realizing his nonsense.
+								</p>
+							</div>
+							<div class="col-md-6 gray-filter">
+								<div class="row">
+									<div class="col-6">
+										<img class="colorable" src="/image/ice_cream_game.png" style="width:100%;" onclick="window.open('/projects/svg_game/game.html','_blank');" data-toggle="tooltip" title="SVG Game" />
+									</div>
+									<div class="col-6">
+										<img class="colorable" src="/image/noise_generator.png" style="width:100%;" onclick="window.open('/projects/noise_generator','_blank');" data-toggle="tooltip" title="Sound Wave Generator" />
+									</div>
+									<div class="col-6">
+										<img class="colorable" src="/image/rhythm_and_jump.png" style="width:100%;" onclick="window.open('/projects/rhythm_and_jump','_blank')" data-toggle="tooltip" title="WebGL Game" />
+									</div>
+									<div class="col-6">
+										<img class="colorable" src="/image/drum_machine.png" style="width:100%;" onclick="window.open('/projects/drum_machine','_blank')" data-toggle="tooltip" title="MIDI Drum Machine" />
+									</div>	
+									<div class="col-6">
+										<img class="colorable" src="/image/rendering_project.png" style="width:100%;" onclick="window.open('/projects/rendering_project','_blank')" data-toggle="tooltip" title="Rendering Project" />
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6 gray-filter">
+								<div class="row">
+									<div class="col-6">
+										<img class="colorable" style="width:100%;" data-toggle="tooltip" title="Placeholder" />
+									</div>	
+								</div>
+							</div>						
+						</div>
+					</div>						
+					<div data-aos="fade-right" class="ag-section research-section">
+						<div class="col-12 text-center unselectable"><h4 class="ag-section-title">Research</h4></div>
+						<hr>
+						<div class="row">
+							<div class="paper-icon col-sm-3">
+								<i class="fa fa-question-circle" style="font-size: 64px;"></i>
+							</div>
+							<div class="col-sm-9">								
+								<div class="paper-author">Chiu-wai Yan, Tsz-him Cheung, Dit-yan Yeung</div>
+								<div class="paper-name">(Under double-blinded review)</div>								
+								<div class="paper-type">Submitted to ICLR 2023</div>
+							</div>
+						</div>						
+						<div class="row">
+							<div class="paper-icon gray-filter col-sm-3">
+								<img class="colorable" src="/image/paper_thesis.png" onclick="window.open('/about_me/MPhil_thesis.pdf','_blank')"/>
+							</div>
+							<div class="col-sm-9">								
+								<div class="paper-author">Chiu-wai Yan</div>
+								<div class="paper-name">Aug-ILA: More Transferable Attacks and Their Application to Adversarial Training</div>								
+								<div class="paper-type">MPhil Thesis (2022)</div>
+							</div>
+						</div>	
+						<div class="row">
+							<div class="paper-icon gray-filter col-sm-3">
+								<img class="colorable" src="/image/paper_infofeature.png" onclick="window.open('/about_me/Research_Infofeature.pdf','_blank')"/>
+							</div>
+							<div class="col-sm-9">								
+								<div class="paper-author">Chiu-wai Yan, Dit-yan Yeung</div>
+								<div class="paper-name">Improving Adversarial Training with Informative Feature-based Attack</div>								
+								<div class="paper-type">Unpublished (2021)</div>
+							</div>
+						</div>	
+						<div class="row">
+							<div class="paper-icon gray-filter col-sm-3">
+								<img class="colorable" src="/image/paper_cyclegan.png" onclick="window.open('/about_me/Research_CycleGan.pdf','_blank')"/>
+							</div>
+							<div class="col-sm-9">								
+								<div class="paper-author">Yanyu Chen, Mingkai Tang, Chiu-wai Yan, Yanxin Valance Wang</div>
+								<div class="paper-name">CycleGAN and Representation Disentanglement</div>								
+								<div class="paper-type">Coursework (2021)</div>
+							</div>
+						</div>														
+					</div>							
+				</div>
+			</main>
+		</div>
+	</div>
+	<footer id="footer" class="mt-auto"></footer>
+</body>
+</html>	

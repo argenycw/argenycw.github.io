@@ -1,0 +1,150 @@
+{
+	"scene": {
+		"fog": {
+			"color": "#180010",
+			"near": 40,
+			"far": 80
+		}
+	},
+	"sky": {
+		"size": 512,
+		"gradient": [0, 0, 0, 512],
+		"colorStop": [[0, "#18101c"], [0.6, "#272044"], [1, "#493a99"]]
+	},
+	"light": {
+		"ambient": {
+			"color": "#606060"
+		},
+		"sunlight": {
+			"color": "#ffffaa",
+			"position": [100, 80, 0]
+		}
+	},
+	"platform": {
+		"normal": {
+			"edgeRadius": 1.2,
+			"texture": {
+				"top": "textures/ground_blue.png",
+				"others": "textures/ground_blue.png"
+			},
+			"receiveShadow": true
+		},
+		"destination": {
+			"edgeRadius": 1.2,
+			"texture": {
+				"top": "textures/undertale_heart.png",
+				"others": "textures/undertale_heart.png"
+			},
+			"receiveShadow": true			
+		},
+		"decoration": [{
+				"edgeRadius": 2,
+				"texture": {
+					"top": "textures/ground_blue.png",
+					"others": "textures/ground_blue.png"
+				},
+				"material": "models/nature_asset.mtl",
+				"models": "models/nature_asset.obj",
+				"model": 11,
+				"size": [6, 6, 6],
+				"position": [-20, 0, -60],
+				"castShadow": true,
+				"receiveShadow": true
+			},
+			{
+				"edgeRadius": 2,
+				"texture": {
+					"top": "textures/ground_blue.png",
+					"others": "textures/ground_blue.png"
+				},
+				"material": "models/nature_asset.mtl",
+				"models": "models/nature_asset.obj",
+				"model": 12,
+				"size": [5, 7, 5],
+				"position": [-18, 0, -50],
+				"colorDepth": [0.7, 0.2, 0.8],
+				"castShadow": true,
+				"receiveShadow": true
+			}, 		
+			{
+				"edgeRadius": 2,
+				"texture": {
+					"top": "textures/ground_blue.png",
+					"others": "textures/ground_blue.png"
+				},
+				"material": "models/nature_asset.mtl",
+				"models": "models/nature_asset.obj",
+				"model": 8,
+				"size": [7, 6, 4],
+				"position": [-15, 2, -26],
+				"colorDepth": [0.6, 0.2, 1.0],		
+				"castShadow": true,
+				"receiveShadow": true			
+			},
+			{
+				"edgeRadius": 2,
+				"texture": {
+					"top": "textures/ground_blue.png",
+					"others": "textures/ground_blue.png"
+				},
+				"models": "models/crystal.glb",
+				"model": 0,
+				"size": [4, 7, 4],
+				"position": [0, 3, 0],	
+				"castShadow": true,
+				"receiveShadow": true
+			}
+		]
+	},
+	"stage": [
+		[".",".","S",".",".","."],
+		[".",".","P",".",".","."],
+		[".","P","P",".",".","."],
+		["D2","P","D3",".",".","."],
+		["P","P",".",".",".","."],
+		["P","D1",".",".",".","."],
+		["P","P","P","P",".","."],
+		[".",".","D1","P","D0","."],
+		[".",".",".","P","P","."],
+		[".",".",".","D3","P","."],
+		[".",".",".",".","P","P"],
+		[".",".",".",".","D1","P"],
+		[".","P","P","P","P","P"],
+		[".","P","D2",".",".","."],
+		[".","P","P","P",".","."],
+		[".",".","D1","P",".","."],
+		[".",".","P","P",".","."],
+		[".",".","P","D3",".","."],
+		[".","P","P",".",".","."],
+		[".","P","D0",".",".","."],
+		[".","P","P","P","P","D2"],
+		[".",".",".","D1","P","D2"],
+		[".",".",".","P","P","."],
+		[".",".",".","P","D1","."],
+		[".",".",".","P","P","."],
+		[".",".",".","D3","P","."],
+		[".",".",".","P","P","."],
+		[".",".",".","P","D2","."],
+		[".",".","D1","P",".","."],
+		[".",".",".","P","P","P"],
+		[".",".",".",".","D1","P"],
+		[".",".",".",".",".","P"],
+		[".",".",".","P","P","P"],
+		[".",".",".","P","D2","."],
+		[".",".","P","P",".","."],
+		[".","P","P",".",".","."],
+		[".","P","D3",".",".","."],
+		[".","P",".",".",".","."],
+		[".","P","P","P",".","."],
+		[".",".","D0","P","P","."],
+		["P","P","P",".","P","."],
+		["P",".","P",".","P","."],
+		["P","D1","P","P","P","."],
+		["P","P",".",".",".","."],
+		["D1","P",".",".",".","."],
+		[".","P","P","P",".","."],
+		["P","P","D3","P","D3","."],
+		[".",".","D3","P","D3","."],
+		[".",".","D3","F","D3","."]
+	]
+}

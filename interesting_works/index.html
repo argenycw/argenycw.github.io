@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+<!-- Pineapple favicon -->
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.png"/>
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<!-- Bootstrap 4 CSS -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+main {
+	font-family: Cambria;
+	background-color: white;
+}
+
+.nav-link.active {
+	background-color: rgb(242,242,242) !important;
+	border-bottom: 1px solid rgb(242,242,242) !important;
+}
+
+.nav-pills {
+	background-color: rgb(242,242,242);
+}
+
+.bordered {
+	padding: 2rem 2rem 2rem 2rem;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	border: 1px solid #dee2e6;
+	background-color: rgb(242,242,255);
+}
+
+.bordered-except-top {
+	border-left: 1px solid #dee2e6;
+	border-right: 1px solid #dee2e6;
+	border-bottom: 1px solid #dee2e6;
+}
+
+input[type=number] {
+	width: 40px;
+    padding-left: 5px;
+}
+
+/* Remove stepper (the arrow) */
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.matrix-values {
+	margin-top: 1rem;
+}
+
+table {
+	text-align: center;
+	overflow: auto;
+}
+
+.matrix-values td {
+	width: 42px;
+	height: 32px;
+}
+
+.overflow-table {
+	overflow: auto;
+}
+
+/* For catchUs layout */
+.escape {
+	position: absolute;
+	color: red;
+	cursor: default;
+}
+
+.game-border {
+	display: none;
+	border: 3px solid;
+	border-color: black;
+	width: 100%;
+	height: 500px;
+	min-height: 500px;
+	background-color: white;
+}
+.game-border #cast-area {
+	height: 100%;
+	width: 100%;
+}
+.rectangle {
+    border: 1px solid #0000FF;
+	background-color: #22E;
+	opacity: 0.4;
+    position: absolute;
+}
+.game-unplayable {display: none;}
+.game-score {
+	display: none;
+	color: #222;
+	text-align: right;
+	font-size: 14px;
+	cursor: default;
+}
+.remark {
+	color: #222;
+	font-size: 12px;
+}
+
+</style>
+<!-- jquery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!-- Bootstrap 4 JS -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+<script src="/interesting_works/matrice.js"></script> <!-- Matrix: RREF and inverse calc -->
+<script src="/interesting_works/catchus.js"></script> <!-- Old game: CatchUs -->
+<title>Interesting Works</title>
+<script>
+const numWorks = 4; // Number of clickable works (3 is missing now)
+const allowance = 10000; // Precision of matrix entries
+var currentPage = 1;
+// For game CatchUs
+const offset = 150;
+const max_us = 15;
+const us_type = ["u", "s", "o", "c", "n"];
+var canvas = document.getElementById("cast-area");
+var num_us = 0;
+var us_x = [];
+var us_y = [];
+var direction = [];
+var score = 0;
+var win = false; // win does not mean winning, but the end of execution iteration
+
+var x = 500, y = 200;
+$(document).ready(function(){
+	$(function(){
+		$("#nav-bar").load("../nav-bar.html");
+		$("#footer").load("../footer.html");
+		var prefix = "#c-";
+		for (var i = 1; i <= numWorks; i++) {
+			if (i == currentPage) continue;
+			var page = prefix + i;
+			$(page).css("display", "none");
+		}
+	});
+	
+	// To disable catchUs on resize
+	$(window).resize(function() {
+		if (!validScreen()) {
+			$(".game-input").css("display","none");
+			$(".game-border").css("display","none");
+			$(".game-unplayable").css("display","block");
+		} else {
+			if ($(".game-border").css("display") == "none") 
+				$(".game-input").css("display","block");
+			$(".game-unplayable").css("display","none");
+			catchUsInit();
+		}
+	});
+});
+
+function swapPageByColId(Id) {
+	// To exit all games
+	if (currentPage == 4) {
+		catchUsInit();
+	}
+	// load page
+	var page = "#c-" + Id;
+	var toHide = "#c-" + currentPage;
+	$(toHide).css("display", "none");
+	$(page).css("display", "block");
+	currentPage = Id;
+	if (Id == 4) {
+		if (!validScreen()) {
+			$(".game-input").css("display","none");
+			$(".game-border").css("display","none");
+			$(".game-unplayable").css("display","block");
+		}
+	}
+}
+
+
+</script>
+</head>
+
+<body class="d-flex flex-column h-100">
+<div id="nav-bar"></div>
+<main>
+	<div class="container nav-bar-push">
+		<div style="margin-top: 80px" class="big-header">Interesting Works</div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">                
+                <div class="alert alert-primary alert-dismissible" role="alert">
+	                <button type="button" class="close" data-dismiss="alert">&times;</button>
+	                <strong>What is this?</strong><br/>   
+					This is a set of Javascript projects that I completed in my year 2 winter. <br />
+                </div>
+            </div>
+        </div>		
+		<div class="row justify-content-center">
+			<div class="col-10 col-md-8">
+				<ul class="nav nav-tabs" role="tablist" style="margin-top: 1rem;">
+					<li class="nav-item">
+						<a class="nav-link active" id="maths-tab" data-toggle="tab" href="#maths" role="tab" aria-controls="maths" aria-selected="true">Maths</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="games-tab" data-toggle="tab" href="#games" role="tab" aria-controls="games" aria-selected="false">Games</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="others-tab" data-toggle="tab" href="#others" role="tab" aria-controls="others" aria-selected="false">Others</a>
+					</li>	
+				</ul>
+				<div class="tab-content bordered-except-top">
+					<div class="tab-pane fade show active" id="maths" role="tabpanel" aria-labelledby="maths-tab">
+						<ul class="nav nav-pills nav-fill">
+							<li class="nav-item">
+								<a class="nav-link" href="#" onclick="swapPageByColId(1)">RREF Calculator</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="#" onclick="swapPageByColId(2)">Inverse Calculator</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="#">???</a>
+							</li>							
+						</ul>
+					</div>
+					<div class="tab-pane fade" id="games" role="tabpanel" aria-labelledby="games-tab">
+						<ul class="nav nav-pills nav-fill">
+							<li class="nav-item">
+								<a class="nav-link" href="#" onclick="swapPageByColId(4)">[Obsolete] CatchUs</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="#">???</a>
+							</li>
+						</ul>
+					</div>
+					<div class="tab-pane fade" id="others" role="tabpanel" aria-labelledby="others-tab">
+						<ul class="nav nav-pills nav-fill">
+							<li class="nav-item">
+								<a class="nav-link" href="#">???</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="#">???</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="row justify-content-center">
+			<div class="bordered col-10 col-md-8" id="c-1">
+				<h4>RREF Calculator&emsp;<font style="color: #E11; font-size: 14px;">(Alpha version)</font></h4>
+				<hr/>
+				<span>Please input the dimension of the matrix. (Row × Column) </span> <br>
+				<input type="number" id="row"> × <input type="number" id="col"><br/>
+				<button id="gen-matrix" onclick="genMatrix()">Generate Matrix</button>
+				<div class="row">
+					<div id="matrix-1" class="col-12 col-md-6"></div>
+					<div id="soln-1" class="matrix-values col-12 col-md-6"></div>
+				</div>
+				<div style="padding-top:1rem; font-family: Cambria;">
+				Note: The calculator is still in the progress of debugging, and it may not be 100% correct. <br>
+				If you find any bug(s)/problem(s) in the calculator, you are welcome to contact me :) <br>
+				-Argen
+				</div>
+			</div>
+
+			<div class="bordered col-10 col-md-8" id="c-2">
+				<h4>Inverse Calculator&emsp;<font style="color: #E11; font-size: 14px;">(Alpha version)</font></h4>
+				<hr/>
+				<span>Please input the size of the matrix.</span> <br/>
+				<input type="number" id="size" max="10" min="1" />&emsp;
+				<button id="gen-matrix" onclick="genMatrix()">Generate Matrix</button>
+				<div class="row">
+					<div id="matrix-2" class="col-12 col-md-6"></div>
+					<div id="soln-2" class="matrix-values col-12 col-md-6"></div>
+				</div>
+				<div style="padding-top:1rem; font-family: Cambria;">
+				Note: The calculator is still in the progress of debugging, and it may not be 100% correct. <br>
+				If you find any bug(s)/problem(s) in the calculator, you are welcome to contact me :) <br>
+				-Argen
+				</div>
+			</div>
+
+			<div class="bordered col-10 col-md-8" id="c-4">
+				<h4>CatchUs&emsp; <font style="color: #E11; font-size: 14px;">(Obsolete)</font></h4>
+				<hr/>
+				<div class="game-input">
+					<span>How to play:</span><br/>
+					Click and drag the mouse to cast an area (in blue) to capture all target characters. <br/>
+					Target character: "u", "s" <br/> 
+					Catching each target character <font style="color:rgb(185,145,25);">increases 10 marks</font>.<br/>
+					Catching non-target character leads to an <font style="color:red;">immediate gameover</font>.<br/>
+					<br>
+					<span>Please input number of character(s).</span> <br/>
+					<input type="number" id="num_us">&emsp;
+					<button id="start-catch-us" onclick="startCatchUs()">Start</button>
+				</div>
+				<div class="game-unplayable">
+					<span>Oops...</span><br/>
+					<p>Seems your screen size is not enough for this game.</p>
+					<p>Use a PC browser or enlarge your screen to play CatchUs.</p>
+				</div>
+				<div class="game-border">
+					<div id="cast-area"></div>
+				</div>
+				<div class="game-score">Current Score:&nbsp;<span id="us-score"></span></div>
+			</div>			
+		</div>
+	</div>
+</main>
+<footer id="footer" class="mt-auto"></footer>
+</body>
+</html>
