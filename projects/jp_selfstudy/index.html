@@ -39,10 +39,12 @@
         color: #ccc; 
     }
 
-    </style>    
+    </style>        
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> 
+    <script src="/jquery/jquery-3.4.0.min.js"></script>
+    <script src="google-spreadsheet.js"></script>
 </head>
 <body>
     <div class="container ag-center">
@@ -60,8 +62,8 @@
                 <select multiple id="jp-vocab-mode" onchange="SetJPVocabMode(M.FormSelect.getInstance(this).getSelectedValues());">
                     <option value="Godan Verb" selected>Godan Verb</option>
                     <option value="Ichidan Verb" selected>Ichidan Verb</option>
-                    <option value="I-Adjective">I-Adjective</option>
-                    <option value="Na-Adjective">Na-Adjective</option>
+                    <option value="I-Adjective" selected>I-Adjective</option>
+                    <option value="Na-Adjective" selected>Na-Adjective</option>
                 </select>
             </div>
             <!-- TODO difficulty N5-N3 -->
@@ -93,15 +95,14 @@
     });
 
     // global config
+    var SHEET_ID = "1G40uhg0cSOoBJmU0FGp45zk3rlq01YSwP81eL6TVd6s";
+    var SHEET_NAMES = [];
+    var API_KEY = "AIzaSyAXJx5cn3XEKosfvOLqpG-MwS0kBAgTWmw";    
+
     var EXCEL_NAME = "dict/vocabs.xlsx";
     var EXCEL_BLOB = null;
     var JP_DISPLAY_MODE = "Mixed";
-    var JP_VOCAB_MODE = {
-        'Godan Verb': true,
-        'Ichidan Verb': true,
-        'I-Adjective': false,
-        'Na-Adjective': false,
-    };
+    var JP_VOCAB_MODE = {};
     var JP_VOCAB_DIFFICULTIES = {
         '5': true, 
         '4': true, 
@@ -110,10 +111,13 @@
         '1': false, 
     };
 
-    // placeholder
-    var vocab_rows = [];
+    // placeholders
+    var vocab_store = {}; // stores all available vocabs loaded at the beginning
+    var vocab_rows = []; // stores the upcoming vocabs according to the user preference
     var current_vocab = null;
 
+    // [Deprecated] please call ReadGoogleSheet() instead.
+    // the local dictionary will also be removed later.
     var ReadExcelDict = function(blob, mode, difficulty) {
         var reader = new FileReader();
         var rows = null;
@@ -147,6 +151,36 @@
 
         reader.readAsBinaryString(blob);        
     };
+
+    var ReadGoogleSheet = function(data, sheetName) {
+        vocab_store[sheetName] = [];
+        header = data.slice(0, 1)[0];
+        data.slice(1).forEach(row => {
+            d = {};
+            for (let i = 0; i < header.length; i++) {
+                d[header[i]] = row[i];
+            }
+            vocab_store[sheetName].push(d);
+        });       
+        ReloadVocab();        
+    }
+    
+    // this function will load the vocab types into vocab_rows, according to the user preference (e.g. vocab type, difficulty, etc.)
+    // will be called once on each modification of user preference 
+    var ReloadVocab = function() {        
+        vocab_rows = [];
+        for (let i = 0; i < SHEET_NAMES.length; i++) {
+            let sheetName = SHEET_NAMES[i];
+            if (vocab_store[sheetName] && JP_VOCAB_MODE[sheetName]) {
+                vocab_store[sheetName].forEach(row => {                
+                if (JP_VOCAB_DIFFICULTIES[parseInt(row['Level'])]) {
+                    vocab_rows.push(row);
+                }
+                }); 
+            }           
+        }        
+        UpdateVocabSize();
+    }
 
     var FormatVocabInHTML = function(vocab_jp, format='full') {
         // process bracket
@@ -207,8 +241,8 @@
         selectedModes.forEach(mode => {
             JP_VOCAB_MODE[mode] = true;
         });
-        // reload the excel dict     
-        ReadExcelDict(EXCEL_BLOB, JP_VOCAB_MODE, JP_VOCAB_DIFFICULTIES);
+        // reload the excel dict
+        ReloadVocab();
     }
     // ============ JP Vocab Difficulty =======
     var SetJPDifficulty = function(selectedDifficulties) {
@@ -221,11 +255,11 @@
             JP_VOCAB_DIFFICULTIES[n] = true;
         });
         // reload the excel dict     
-        ReadExcelDict(EXCEL_BLOB, JP_VOCAB_MODE, JP_VOCAB_DIFFICULTIES);
+        ReloadVocab();
     }
     // ============ JP vocab size =============
     var UpdateVocabSize = function() {
-        if (vocab_rows && vocab_rows.length) {   
+        if (vocab_rows) {   
             document.getElementById("jp-vocab-size").textContent = vocab_rows.length;
         }        
     }
@@ -241,7 +275,7 @@
     }
 
     var LoadRandomRow = function() {
-        if (!vocab_rows || !vocab_rows.length) throw Error("ExcelReader is not yet ready!");
+        if (!vocab_rows || !vocab_rows.length) throw Error("vocab_rows is empty!");
         // load a random row
         let randId = Math.floor(Math.random() * vocab_rows.length);
         current_vocab = vocab_rows[randId];
@@ -281,10 +315,37 @@
     }
 
     window.onload = () => {            
-        // ready dictionary
+        // ready dictionary from local Excel file
+        /*
         fetch(EXCEL_NAME).then(f => f.blob()).then(blob => {
             EXCEL_BLOB = blob;
             ReadExcelDict(blob, JP_VOCAB_MODE, JP_VOCAB_DIFFICULTIES);
         });
+        */
+
+        // Ready dictionary from Google Sheet. This should only be called once until page refresh.
+        // first pass: get the sheet titles
+        let property_path = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/?key=${API_KEY}`;   
+        fetch(property_path).then(resp => {
+            return resp.json();
+        }).then(data => {
+            data.sheets.forEach(sheet => {
+                SHEET_NAMES.push(sheet.properties.title);
+                JP_VOCAB_MODE[sheet.properties.title] = true;
+            });
+
+            // second pass: get all sheets directly. This time will collect everything for once and all        
+            for (let i = 0; i < SHEET_NAMES.length; i++) {   
+                let sheetName = SHEET_NAMES[i];             
+                var sheetPath = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}!1:999?key=${API_KEY}`;
+                fetch(sheetPath).then(resp => {                    
+                    return resp.json();
+                }).then(data => {                    
+                    if (data.values) {                        
+                        ReadGoogleSheet(data.values, sheetName);
+                    }
+                });            
+            }
+        });    
     }
 </script>   
