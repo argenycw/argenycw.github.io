@@ -182,8 +182,30 @@
         UpdateVocabSize();
     }
 
-    var FormatVocabInHTML = function(vocab_jp, format='full') {
-        // process bracket
+    var FormatVocabInHTML = function(vocab_jp, format='Full') {
+        // process brackets (support multiple brackets)       
+        let charset = [...vocab_jp.matchAll(/(.)(\(.*?\))?/g)];
+        let outstr = `<ruby>`;     
+        for (let i = 0; i < charset.length; i++) {
+            let capture = charset[i];
+            if (capture[0].length == 1) { // single character
+                outstr += capture[0];
+            }
+            else { // contains bracket ==> depends on the selected formatting
+                if (format == "Kanji Only")
+                    outstr += capture[1];
+                else if (format == "Hiragana Only") {
+                    outstr += capture[2].substring(1, capture[2].length-1);
+                }
+                else if (format == "Full") {
+                    outstr += `${capture[1]}<rt>${capture[2].substring(1, capture[2].length-1)}</rt>`;
+                }
+            }
+        }
+        outstr += `</ruby>`;
+        return outstr;
+
+        /*
         kanji_upper_hiragana = vocab_jp.split(/\((.*)\)/);
         if (kanji_upper_hiragana.length == 3) {
             vocab_jp_kanji = kanji_upper_hiragana[0];
@@ -215,6 +237,7 @@
         else {
             throw Error("Unsupported format: ", format);
         }  
+        */
     }
 
     // ============ JP display mode ============
@@ -267,10 +290,10 @@
     var UpdateOptions = function(options) {
         options.sort();
         document.getElementById("mc-options").innerHTML = `
-            <div class="col s6"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[0][1]}" onclick="VerifyAnswer(this);">${options[0][0]}</button></div>
-            <div class="col s6"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[1][1]}" onclick="VerifyAnswer(this);">${options[1][0]}</button></div>
-            <div class="col s6"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[2][1]}" onclick="VerifyAnswer(this);">${options[2][0]}</button></div>
-            <div class="col s6"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[3][1]}" onclick="VerifyAnswer(this);">${options[3][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large btn-block blue-grey darken-1 waves-effect waves-light" data-ans="${options[0][1]}" onclick="VerifyAnswer(this);">${options[0][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[1][1]}" onclick="VerifyAnswer(this);">${options[1][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[2][1]}" onclick="VerifyAnswer(this);">${options[2][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[3][1]}" onclick="VerifyAnswer(this);">${options[3][0]}</button></div>
         `;
     }
 
