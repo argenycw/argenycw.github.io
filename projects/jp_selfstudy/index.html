@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JP - Self Quiz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+    body {
+        background-color: #333;
+        color: #ccc;        
+    }
+
+    .ag-section {
+        margin-top: 50px;        
+    }
+
+    .ag-section button {
+        min-width: 40%;
+        margin-top: 3rem; 
+    }
+
+    .ag-font-large {
+        font-size: 36px;
+    }
+
+    .ag-center {
+        text-align: center;
+    }
+
+    .select-dropdown {
+        background-color: #222;
+        color: #ccc;
+    }
+
+    ul.dropdown-content.select-dropdown li span {
+        color: #ccc; 
+    }
+
+    </style>        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script> 
+    <script src="/jquery/jquery-3.4.0.min.js"></script>
+    <script src="google-spreadsheet.js"></script>
+</head>
+<body>
+    <div class="container ag-center">
+        <div class="ag-section row">
+            <!-- Japanese display mode -->
+            <div class="col s6 m3 l2">
+                <select id="jp-display-mode" onchange="SetJPDisplayMode(this.options[this.selectedIndex].text);">
+                    <option value="Kanji Only">Kanji Only</option>
+                    <option value="Hiragana Only">Hiragana Only</option>
+                    <option value="Full" selected>Full</option>
+                </select>
+            </div>
+            <!-- Japanese vocab mode -->
+            <div class="col s6 m3 l2">
+                <select multiple id="jp-vocab-mode" onchange="SetJPVocabMode(M.FormSelect.getInstance(this).getSelectedValues());">
+                    <option value="Godan Verb" selected>Godan Verb</option>
+                    <option value="Ichidan Verb" selected>Ichidan Verb</option>
+                    <option value="I-Adjective" selected>I-Adjective</option>
+                    <option value="Na-Adjective" selected>Na-Adjective</option>
+                </select>
+            </div>
+            <!-- TODO difficulty N5-N3 -->
+            <div class="col s4 m2 l1">
+                <select multiple id="jp-vocab-mode" onchange="SetJPDifficulty(M.FormSelect.getInstance(this).getSelectedValues());">
+                    <option value="5" selected>N5</option>
+                    <option value="4" selected>N4</option>
+                    <option value="3">N3</option>
+                    <option value="2">N2</option>
+                    <option value="1">N1</option>
+                </select>
+            </div>            
+            <div class="col m2">Vocab Size: <span id="jp-vocab-size"></span></div>
+        </div>
+        <div class="ag-font-large" id="current-row"></div>
+        <div class="ag-section row" id="mc-options"></div>                
+        <div class="ag-section">
+            <button class="btn blue-grey darken-1 waves-effect waves-light" onclick="LoadRandomRow();">Next<i class="material-icons right">send</i></button>
+        </div>        
+    </div>
+</body>
+</html>
+
+<script>
+    // Materialize init dropdown
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        var instances = M.FormSelect.init(elems, {});
+    });
+
+    // global config
+    var SHEET_ID = "1G40uhg0cSOoBJmU0FGp45zk3rlq01YSwP81eL6TVd6s";
+    var SHEET_NAMES = [];
+    var API_KEY = "AIzaSyAXJx5cn3XEKosfvOLqpG-MwS0kBAgTWmw";    
+
+    var EXCEL_NAME = "dict/vocabs.xlsx";
+    var EXCEL_BLOB = null;
+    var JP_DISPLAY_MODE = "Mixed";
+    var JP_VOCAB_MODE = {};
+    var JP_VOCAB_DIFFICULTIES = {
+        '5': true, 
+        '4': true, 
+        '3': false, 
+        '2': false, 
+        '1': false, 
+    };
+
+    // placeholders
+    var vocab_store = {}; // stores all available vocabs loaded at the beginning
+    var vocab_rows = []; // stores the upcoming vocabs according to the user preference
+    var current_vocab = null;
+
+    // [Deprecated] please call ReadGoogleSheet() instead.
+    // the local dictionary will also be removed later.
+    var ReadExcelDict = function(blob, mode, difficulty) {
+        var reader = new FileReader();
+        var rows = null;
+        var size = 0;
+
+        reader.onload = function(e) {
+            var data = e.target.result;
+            var workbook = XLSX.read(data, {
+                type: 'binary'
+            });
+            
+            vocab_rows = []; // reset the vocab rows
+            // get the sheet as specified by JP_VOCAB_MODE
+            Object.keys(mode).forEach((k) => {
+                if (mode[k]) {
+                    let xl_rows_json = XLSX.utils.sheet_to_json(workbook.Sheets[k]);
+                    vocab_rows.push(...xl_rows_json);
+                }
+            });
+            // filter the vocabs with difficulties
+            vocab_rows = vocab_rows.filter(vocab => {
+                return difficulty[vocab["Level"]];
+            });
+            // TODO distinguish different type of vocabs
+            UpdateVocabSize();
+        };
+
+        reader.onerror = function(ex) {
+            console.error(ex);
+        };
+
+        reader.readAsBinaryString(blob);        
+    };
+
+    var ReadGoogleSheet = function(data, sheetName) {
+        vocab_store[sheetName] = [];
+        header = data.slice(0, 1)[0];
+        data.slice(1).forEach(row => {
+            d = {};
+            for (let i = 0; i < header.length; i++) {
+                d[header[i]] = row[i];
+            }
+            vocab_store[sheetName].push(d);
+        });       
+        ReloadVocab();        
+    }
+    
+    // this function will load the vocab types into vocab_rows, according to the user preference (e.g. vocab type, difficulty, etc.)
+    // will be called once on each modification of user preference 
+    var ReloadVocab = function() {        
+        vocab_rows = [];
+        for (let i = 0; i < SHEET_NAMES.length; i++) {
+            let sheetName = SHEET_NAMES[i];
+            if (vocab_store[sheetName] && JP_VOCAB_MODE[sheetName]) {
+                vocab_store[sheetName].forEach(row => {                
+                if (JP_VOCAB_DIFFICULTIES[parseInt(row['Level'])]) {
+                    vocab_rows.push(row);
+                }
+                }); 
+            }           
+        }        
+        UpdateVocabSize();
+    }
+
+    var FormatVocabInHTML = function(vocab_jp, format='Full') {
+        // process brackets (support multiple brackets)       
+        let charset = [...vocab_jp.matchAll(/(.)(\(.*?\))?/g)];
+        let outstr = `<ruby>`;     
+        for (let i = 0; i < charset.length; i++) {
+            let capture = charset[i];
+            if (capture[0].length == 1) { // single character
+                outstr += capture[0];
+            }
+            else { // contains bracket ==> depends on the selected formatting
+                if (format == "Kanji Only")
+                    outstr += capture[1];
+                else if (format == "Hiragana Only") {
+                    outstr += capture[2].substring(1, capture[2].length-1);
+                }
+                else if (format == "Full") {
+                    outstr += `${capture[1]}<rt>${capture[2].substring(1, capture[2].length-1)}</rt>`;
+                }
+            }
+        }
+        outstr += `</ruby>`;
+        return outstr;
+
+        /*
+        kanji_upper_hiragana = vocab_jp.split(/\((.*)\)/);
+        if (kanji_upper_hiragana.length == 3) {
+            vocab_jp_kanji = kanji_upper_hiragana[0];
+            vocab_jp_upper = kanji_upper_hiragana[1];
+            vocab_jp_hiragana = kanji_upper_hiragana[2];
+        }
+        else if (kanji_upper_hiragana.length == 1) {
+            vocab_jp_hiragana = kanji_upper_hiragana;
+        }
+        else {
+            throw Error("Invalid length: ", kanji_upper_hiragana);
+        }
+
+        if (format == "Kanji Only") {
+            return (
+                `<ruby>${vocab_jp_kanji}${vocab_jp_hiragana}</ruby>`
+            );
+        } 
+        else if (format == "Hiragana Only") {
+            return (
+                `<ruby>${vocab_jp_upper}${vocab_jp_hiragana}</ruby>`
+            );
+        }
+        else if (format == "Full") {
+            return (
+                `<ruby>${vocab_jp_kanji}<rt>${vocab_jp_upper}</rt>${vocab_jp_hiragana}</ruby>`
+            );
+        }
+        else {
+            throw Error("Unsupported format: ", format);
+        }  
+        */
+    }
+
+    // ============ JP display mode ============
+    var UpdateDisplayMode = function() {
+        if (current_vocab) {
+            vocab_en = current_vocab["EN"];
+            vocab_jp = current_vocab["JP"];          
+            document.getElementById("current-row").innerHTML = FormatVocabInHTML(vocab_jp, JP_DISPLAY_MODE);
+        }
+    }
+
+    var SetJPDisplayMode = function(displayMode="Full") {
+        JP_DISPLAY_MODE = displayMode;
+        UpdateDisplayMode();        
+    };
+    SetJPDisplayMode();
+    // ============ JP vocab mode =============
+    var SetJPVocabMode = function(selectedModes) {
+        // unset first
+        Object.keys(JP_VOCAB_MODE).forEach(k => {
+            JP_VOCAB_MODE[k] = false;
+        });
+        // set back to true
+        selectedModes.forEach(mode => {
+            JP_VOCAB_MODE[mode] = true;
+        });
+        // reload the excel dict
+        ReloadVocab();
+    }
+    // ============ JP Vocab Difficulty =======
+    var SetJPDifficulty = function(selectedDifficulties) {
+        // unset first
+        Object.keys(JP_VOCAB_DIFFICULTIES).forEach(k => {
+            JP_VOCAB_DIFFICULTIES[k] = false;
+        });
+        // set back to true
+        selectedDifficulties.forEach(n => {
+            JP_VOCAB_DIFFICULTIES[n] = true;
+        });
+        // reload the excel dict     
+        ReloadVocab();
+    }
+    // ============ JP vocab size =============
+    var UpdateVocabSize = function() {
+        if (vocab_rows) {   
+            document.getElementById("jp-vocab-size").textContent = vocab_rows.length;
+        }        
+    }
+    // ========================================
+    var UpdateOptions = function(options) {
+        options.sort();
+        document.getElementById("mc-options").innerHTML = `
+            <div class="col m6 s12"><button class="ans-btn btn-large btn-block blue-grey darken-1 waves-effect waves-light" data-ans="${options[0][1]}" onclick="VerifyAnswer(this);">${options[0][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[1][1]}" onclick="VerifyAnswer(this);">${options[1][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[2][1]}" onclick="VerifyAnswer(this);">${options[2][0]}</button></div>
+            <div class="col m6 s12"><button class="ans-btn btn-large blue-grey darken-1 waves-effect waves-light" data-ans="${options[3][1]}" onclick="VerifyAnswer(this);">${options[3][0]}</button></div>
+        `;
+    }
+
+    var LoadRandomRow = function() {
+        if (!vocab_rows || !vocab_rows.length) throw Error("vocab_rows is empty!");
+        // load a random row
+        let randId = Math.floor(Math.random() * vocab_rows.length);
+        current_vocab = vocab_rows[randId];
+        vocab_en = current_vocab["EN"];
+        vocab_jp = current_vocab["JP"];             
+        UpdateDisplayMode();        
+
+        // load 3 wrong rows
+        let options = [[vocab_en, 1]]
+        let vocab_rows_reduced = vocab_rows.slice(0, randId).concat(vocab_rows.slice(randId+1));        
+        for (let i = 0; i < 3; i++) {
+            let wrongId = Math.floor(Math.random() * vocab_rows_reduced.length);
+            vocab_row = vocab_rows_reduced[wrongId]
+            vocab_rows_reduced = vocab_rows_reduced.slice(0, randId).concat(vocab_rows_reduced.slice(randId+1));            
+            options.push([vocab_row["EN"], 0]);
+        } 
+        UpdateOptions(options);
+    }
+
+    var VerifyAnswer = function(answerTag) {
+        // disable all buttons
+        Array.from(document.getElementsByClassName("ans-btn")).forEach(btn => {
+            btn.disabled = true;
+            btn.onclick = null;
+            if (btn.getAttribute("data-ans") === "1") {
+                btn.classList.remove("blue-grey");
+                btn.classList.add("green");
+                btn.disabled = false;
+            }
+        });
+        // incorrect
+        if (answerTag.getAttribute("data-ans") === "0") {
+            answerTag.classList.remove("blue-grey");
+            answerTag.classList.add("red");
+            answerTag.disabled = false;
+        }
+    }
+
+    window.onload = () => {            
+        // ready dictionary from local Excel file
+        /*
+        fetch(EXCEL_NAME).then(f => f.blob()).then(blob => {
+            EXCEL_BLOB = blob;
+            ReadExcelDict(blob, JP_VOCAB_MODE, JP_VOCAB_DIFFICULTIES);
+        });
+        */
+
+        // Ready dictionary from Google Sheet. This should only be called once until page refresh.
+        // first pass: get the sheet titles
+        let property_path = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/?key=${API_KEY}`;   
+        fetch(property_path).then(resp => {
+            return resp.json();
+        }).then(data => {
+            data.sheets.forEach(sheet => {
+                SHEET_NAMES.push(sheet.properties.title);
+                JP_VOCAB_MODE[sheet.properties.title] = true;
+            });
+
+            // second pass: get all sheets directly. This time will collect everything for once and all        
+            for (let i = 0; i < SHEET_NAMES.length; i++) {   
+                let sheetName = SHEET_NAMES[i];             
+                var sheetPath = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}!1:999?key=${API_KEY}`;
+                fetch(sheetPath).then(resp => {                    
+                    return resp.json();
+                }).then(data => {                    
+                    if (data.values) {                        
+                        ReadGoogleSheet(data.values, sheetName);
+                    }
+                });            
+            }
+        });    
+    }
+</script>   

@@ -1,0 +1,170 @@
+@font-face {
+    font-family: 'Requires Moonshine';
+    src: url('./RequiresMoonshine.otf');
+}
+
+@font-face {
+    font-family: 'Gamlangdee';
+    src: url('./Gamlangdee.ttf');
+}
+
+.cubic {
+	font-family: "Requires Moonshine";
+	text-anchor: middle;
+}
+
+.sub-cubic {
+	font-family: "Gamlangdee";
+	text-anchor: middle;
+}
+
+.black-4-white {
+	stroke: black;
+	stroke-width: 4;
+	fill: white;
+}
+
+.black-2-white {
+	stroke: black;
+	stroke-width: 2;
+	fill: white;
+}
+
+.black-fill {
+	stroke: none;
+	fill: black;	
+}
+
+.white-fill {
+	stroke: none;
+	fill: white;	
+}
+
+.red-fill {
+	stroke: none;
+	fill: #a00020;
+}
+
+/* circle-buttons */
+.black-round-btn {
+	fill: black;
+	cursor: pointer;
+}
+
+.black-round-btn:hover {
+	fill: white;
+}
+
+.menu-round-btn {
+	fill: #a00020;
+	cursor: pointer;
+}
+
+.menu-round-btn:hover {
+	fill: #ccaa88;
+}
+
+.menu-text-input {
+	height: 100%;
+	width: 100%;
+	border: 2px solid black;
+	border-radius: 4px;
+	font-family: "Requires Moonshine";
+	font-size: 4vh;
+	padding: 0 8px 0 8px;
+}
+
+.menu-text-input::selection { color: white; }
+.menu-text-input::-moz-selection { color: white; }
+
+/* Green series: for winning dialog */
+.victory-green {
+	fill: #209030;
+}
+
+.green-dialog {
+	stroke: #209030;
+	stroke-width: 0.5vw;
+	fill: #ccffdd;
+}
+
+.green-rect-text {
+	stroke: #209030;
+	stroke-width: 0.4vw;
+	fill: #ccffdd;
+}
+
+.green-rect-btn rect {
+	stroke: #209030;
+	stroke-width: 0.4vw;
+	fill: #ccffdd;
+	cursor: pointer;
+}
+
+.green-rect-btn text {
+	stroke: none;
+	fill: #106010;
+	font-size: 2vw;
+	cursor: pointer;
+}
+
+.green-rect-btn:hover > rect {
+	fill: #aaffbb;
+}
+
+
+/* Brown rect series: for dialogs text and buttons */
+.brown-dialog {
+	stroke: #a00020;
+	stroke-width: 0.5vw;
+	fill: #ddccbb;
+}
+
+.menu-brown-dialog {
+	fill: transparent;
+}
+
+.brown-rect-text {
+	stroke: #a00020;
+	stroke-width: 0.4vw;
+	fill: #ddccbb;
+}
+
+.brown-rect-btn rect {
+	stroke: #a00020;
+	stroke-width: 0.4vw;
+	fill: #ddccbb;
+	cursor: pointer;
+}
+
+.btn-disabled rect {
+	cursor: default;	
+}
+
+.brown-rect-btn text {
+	stroke: none;
+	fill: black;
+	font-size: 2vw;
+	cursor: pointer;
+}
+
+.btn-disabled text {
+	fill: #666;	
+	cursor: default;	
+}
+
+.brown-rect-btn:hover > rect {
+	fill: #ccaa88;
+}
+
+.btn-disabled:hover > rect {
+	fill: #ddccbb;	
+}
+
+.rect-btn-sm text {
+	font-size: 1.4vw;
+} 
+
+.transparent-50 {
+	opacity: 0.5;
+}
