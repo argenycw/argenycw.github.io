@@ -1,0 +1,43 @@
+[
+    {
+        "author": "Yanyu Chen, Mingkai Tang, Chiu-wai Yan, Yanxin Valance Wang",
+        "title": "CycleGAN and Representation Disentanglement",        
+        "booktitle": "Coursework",
+        "year": "2021",
+        "thumbnail": "/research/paper_cyclegan.png",
+        "src": "/research/Research_CycleGan.pdf"
+    },
+    {
+        "author": "Chiu-wai Yan, Dit-yan Yeung",
+        "title": "Improving Adversarial Training with Informative Feature-based Attack",        
+        "booktitle": "Unpublished",
+        "year": "2021",
+        "thumbnail": "/research/paper_infofeature.png",
+        "src": "/research/Research_Infofeature.pdf"
+    },
+    {
+        "author": "Chiu-wai Yan",
+        "title": "Aug-ILA: More Transferable Attacks and Their Application to Adversarial Training",
+        "booktitle": "MPhil Thesis",
+        "year": "2022",
+        "thumbnail": "/research/paper_thesis.png",
+        "src": "/research/MPhil_thesis.pdf"
+    },
+    {
+        "author": "Chiu-wai Yan, Tsz-him Cheung, Dit-yan Yeung",
+        "title": "ILA-DA: Improving Transferability of Intermediate Level Attack with Data Augmentation",
+        "booktitle": "ICLR",
+        "year": "2023",
+        "thumbnail": "/research/paper_ilada.png",
+        "src": "https://openreview.net/forum?id=OM7doLjQbOQ"
+    },
+
+    {
+        "author": "Chiu-wai Yan, Shi Quan Foo, Van Hoan Trinh, Dit-yan Yeung, Ka-hing Wong, Wai-kin Wong",
+        "title": "Fourier Amplitude and Correlation Loss: Beyond Using L2 Loss for Skillful Precipitation Nowcasting",
+        "booktitle": "NeurIPS",
+        "year": "2024",
+        "thumbnail": "/research/paper_facl.png",
+        "src": "https://neurips.cc/virtual/2024/poster/96922"
+    }
+]
