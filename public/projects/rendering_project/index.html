@@ -1,0 +1,613 @@
+<html>
+<head>
+	<title>COMP5411 Project - Mirror Maze</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body { margin: 0; }		
+		canvas { width: 100%; height: 100% }
+		.sub-window {
+			position: absolute;
+		}
+		.sub-window span {
+			color: white;
+			text-shadow: -0.5px 0 black, 0 0.5px black, 0.5px 0 black, 0 -0.5px black;
+			position: absolute;	
+			top: 8%;		
+			left: 28%;
+		}
+	</style>
+</head>
+<body>
+	<div id='top-view' class='sub-window'><span>Top View</span><canvas id='top-view-canvas'></canvas></div>
+	<script src="js/three.js"></script>
+	<script src="js/dat.gui.min.js"></script>
+	<script>
+		// Addional function on dat.gui: to make the folder "deletable"
+		dat.GUI.prototype.removeFolder = function(name) {
+			var folder = this.__folders[name];
+			if (!folder) return;
+			folder.close();
+			this.__ul.removeChild(folder.domElement.parentNode);
+			delete this.__folders[name];
+			this.onResize();
+		}
+	</script>
+	<script id="vertex-shader" type="x-shader/x-vertex">
+		uniform mat4 rotation;
+
+		varying vec2 vUv; // texture coordinate on the MIRROR itself
+		varying vec3 vNormal;
+		varying vec3 vPos;
+
+		void main() {						
+			vUv = uv;
+			vNormal = (rotation * vec4(normal, 1)).xyz;	
+			vec4 temp = modelMatrix * vec4(position, 1.0);
+			vPos = temp.xyz / temp.w;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); 		
+		}				
+	</script>	
+	<script id="fragment-shader" type="x-shader/x-fragment">
+		// ====== Struct definition ======
+		struct Light {
+			vec3 position;
+			vec3 color;
+			vec3 ambient;			
+		};		
+
+		struct Ray {					
+			vec3 origin;
+			vec3 direction;
+		};
+
+		struct Plane {
+			bool isMirror;
+			vec3 position;
+			vec3 v0, v1, v2, v3;
+			sampler2D tex;
+		};
+
+		struct Intersection {
+			bool hit;
+			bool mirror;
+			bool hitBorder;
+			float t;			
+			vec3 hitPoint;
+			vec3 normal;
+			vec3 color;
+		};
+
+		// ====== Globals =======
+		const int MAX_DEPTH = 100;
+		uniform int mirrorCnt;
+		uniform int depth;
+		uniform float border;
+		uniform vec4 mirrorColor;
+		uniform float diffuse;
+		uniform bool dynamicMirrorExist;
+
+		uniform vec3 backgroundColor;
+		uniform Light light;	
+		uniform int planesCnt;
+		// Plane with parameters separated
+		uniform Plane plane1;
+		uniform Plane plane2;
+		// mirrors
+		uniform Plane plane3;
+		uniform Plane plane4;
+		uniform Plane plane5;
+		uniform Plane plane6;	
+		uniform Plane plane7;
+		uniform Plane dynamicMirror;	
+
+		varying vec2 vUv;
+		varying vec3 vPos;
+		varying vec3 vNormal;
+
+		// ====== Functions ======	
+		Ray createRay(vec3 ori, vec3 dir) {
+			Ray r;					
+			r.origin = ori;
+			r.direction = dir;
+			return r;
+		}
+
+		vec3 rand3(vec2 st) {
+            return vec3(fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123),
+            	fract(sin(dot(st.xy, vec2(131.12,54.11))) * 4375.85453123),
+            	fract(sin(dot(st.xy, vec2(1.444,-5.4218))) * 437.585453123));
+        }
+
+		void intersectPlane(Ray r, Plane p, inout Intersection i) {
+			vec3 pNormal = normalize(cross(p.v2 - p.v0, p.v1 - p.v0));
+			float denom = dot(r.direction, pNormal);
+			if (abs(denom) > 0.00001) {
+				float t = dot(p.position - r.origin, pNormal) / denom;
+				// at the front and closer than existing object
+				if (t > 0.00001 && (!i.hit || t < i.t)) {
+					// extent check
+					vec3 hitPos = r.origin + t * r.direction;
+					vec3 edgeVec1 = p.v1 - p.v0;
+					vec3 edgeVec2 = p.v3 - p.v1;
+					vec3 edgeVec3 = p.v2 - p.v3;
+					vec3 edgeVec4 = p.v0 - p.v2;
+					if (dot(hitPos - p.v0, edgeVec1) > 0.0 && dot(hitPos - p.v1, edgeVec2) > 0.0 &&
+					dot(hitPos - p.v3, edgeVec3) > 0.0 && dot(hitPos - p.v2, edgeVec4) > 0.0) {
+						i.hit = true;
+						i.t = t;
+						i.hitPoint = hitPos;
+						i.mirror = p.isMirror;
+						i.normal = pNormal;				
+						// projection on the plane to get uv coordinate
+						vec3 hitVec = i.hitPoint - p.v0;
+						vec3 ux = dot(hitVec, edgeVec1) / dot(edgeVec1, edgeVec1) * edgeVec1;
+    					vec3 vz = dot(hitVec, -edgeVec4) / dot(edgeVec4, edgeVec4) * -edgeVec4;
+    					float u = length(ux) / length(edgeVec1);
+    					float v = 1.0 - length(vz) / length(edgeVec4);
+    					// TODO antialiasing: take multiple samples base on distance of t
+    					i.color = texture2D(p.tex, vec2(u, v)).rgb;
+    					// hit mirror border
+    					if (i.mirror && (u < border || v < border || u > 1.0-border || v > 1.0-border))
+    						i.hitBorder = true;
+					}
+				}
+			}
+		}
+
+		void intersect(Ray r, inout Intersection i) {	
+			intersectPlane(r, plane1, i);	
+			intersectPlane(r, plane2, i);
+			// mirrors intersection	
+			intersectPlane(r, plane3, i);
+			intersectPlane(r, plane4, i);
+			intersectPlane(r, plane5, i);
+			if (dynamicMirrorExist) intersectPlane(r, dynamicMirror, i);
+			if (mirrorCnt == 3) return;
+			intersectPlane(r, plane6, i);	
+			if (mirrorCnt == 4) return;	
+			intersectPlane(r, plane7, i);			
+		}
+
+		// ======== Main ========
+		void main() {		
+			vec3 N = normalize(vNormal);						
+			vec3 dir = vPos - cameraPosition;			
+			vec3 reflectedDir = reflect(dir, N);
+			// diffuse: adding some random factor to the reflection
+			vec3 scatter = rand3(gl_FragCoord.xy) * diffuse;
+			reflectedDir = normalize(reflectedDir + scatter);
+			Ray r = createRay(vPos, reflectedDir);
+			
+			// the colored mirror border, not reflecting
+			float maxb = 1.0 - border;
+			if (vUv.x < border || vUv.x > maxb || vUv.y < border || vUv.y > maxb) {
+				gl_FragColor = vec4(0, 0, 0, 1);
+				return;
+			}		
+
+			// start recursive path tracing			
+			float intensity = 1.0 - mirrorColor.a;
+			vec3 color = intensity * mirrorColor.a * mirrorColor.rgb / 255.0; // the color of the mirror
+			for (int d = 0; d < MAX_DEPTH; d++) {
+				if (d >= depth || intensity < 0.0001) break;			
+				Intersection i;
+				intersect(r, i);
+				if (i.hit && i.mirror && i.hitBorder) { // hitting mirror border, stop tracing
+					color += intensity * vec3(0.01, 0.01, 0.01);
+					break;
+				}		
+				else if (i.hit && i.mirror) { // hitting mirror					
+					color += intensity * mirrorColor.a * mirrorColor.rgb / 255.0;
+					intensity -= mirrorColor.a;
+					r = createRay(i.hitPoint, reflect(r.direction, i.normal));
+				}
+				else if (i.hit) { // hitting solid object			
+					vec3 L = normalize(light.position - i.hitPoint);
+					color += intensity * i.color * (dot(i.normal, L) + light.ambient);
+					break;					
+				}
+				else { // background
+					color += intensity * backgroundColor;
+					break;
+				}
+			}
+			if (color == vec3(0, 0, 0)) color = intensity * backgroundColor;
+			gl_FragColor = vec4(color, 1);
+		}		
+	</script>
+	<script>
+		// Define the UI panel
+		var SceneController = function() {
+			this.Tile = 'textures/color_grid.jpg';
+			this.NumOfMirrors = 4;	
+			this.Depth = 5;
+			this.BorderThickness = 0.01;				
+		}
+
+		var MirrorController = function() {
+			this.ColorAlpha = 0.0;
+			this.Color = [0, 0, 0];
+			this.Diffuse = 0.0;
+			this.DynamicMirror = false;
+			this.X = 2;
+			this.Y = 3;
+			this.Z = 5;
+			this.EulerY = 20;
+		}
+
+		// define the global scene setting when there are different number of mirrors
+		const positions = {
+			3: [ [0, 2.51, 1.443], [-1.247, 2.51, -0.72], [1.247, 2.51, -0.72]],
+			4: [[0, 2.51, -2.5], [2.5, 2.51, 0], [-2.5, 2.51, 0], [0, 2.51, 2.5]],
+			5: [[0, 2.51, 3.44], [-3.272, 2.51, 1.06], [3.272, 2.51, 1.06], [2.02, 2.51, -2.78], [-2.02, 2.51, -2.78]],
+		}; 
+		const rotations = {
+			3: [0, 60, -60],
+			4: [0, 90, -90, 180],
+			5: [0, 108, -108, -216, 216],
+		};
+		const tileMapper = {
+			'Color Grid 1': 'textures/color_grid.jpg',
+			'Color Grid 2': 'textures/color_grid_2.jpg',
+			'Marble': 'textures/marble.jpg',
+			'Chocolate': 'textures/chocolate.jpg',
+		}
+
+		var scene, renderer, camera;
+		var topViewRenderer, topViewCamera, topViewDot;
+		var ground, light, dynamicMirrorObj;
+		var mouseX, mouseY, mouseDX = 0, mouseDY = 0, mouseDown = false;
+		var moveUp, moveDown, moveLeft, moveRight;
+		var objectList = []; // all objects that can be "reflected"
+		var mirrorController = new MirrorController();
+		var panel = new SceneController();
+		init();
+		createMirrors();
+		createDatGui();
+		animate();
+
+		// Initialization of the scene
+		function init() {
+			// scene creation
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xcce0ff);
+			scene.fog = new THREE.Fog(0xcce0ff, 1, 100);
+			// renderer
+			renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			topViewRenderer = new THREE.WebGLRenderer({canvas: document.getElementById('top-view-canvas')});
+			topViewRenderer.setSize(150, 150);
+			// normal camera
+			camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+			camera.position.set(0, 3, 2);	
+			camera.lookAt(0, 3, 0);
+			// top view camera
+			topViewCamera = new THREE.PerspectiveCamera(75, 1.0, 0.01, 50);
+			topViewCamera.position.set(0, 15, 0);
+			topViewCamera.lookAt(0, 0, 0);
+			// a dot showing camera position seen in top view
+			var dotGeometry = new THREE.Geometry();
+			dotGeometry.vertices.push(new THREE.Vector3());
+			var dotMaterial = new THREE.PointsMaterial({ size: 5, color: 0xff0000, sizeAttenuation: false });
+			topViewDot = new THREE.Points(dotGeometry, dotMaterial);
+			scene.add(topViewDot);
+			// light
+			scene.add(new THREE.AmbientLight(0x333333))
+			light = new THREE.PointLight(0xffffff);
+			light.position.set(0, 5, 0);
+			light.castShadow = true;
+			scene.add(light);
+			// ground
+			var loader = new THREE.TextureLoader();
+			var groundTexture = loader.load(panel.Tile);
+			var groundMaterial = new THREE.MeshPhongMaterial({map: groundTexture});
+			ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), groundMaterial);
+			ground.position.y = 0;
+			ground.rotation.x = -90 * Math.PI / 180;
+			ground.receiveShadow = true;
+			objectList.push(ground);
+			scene.add(ground);
+			// same obstacles
+			var loader = new THREE.TextureLoader();
+			var wallTexture = loader.load('textures/brick.jpg');
+			var wallMaterial = new THREE.MeshPhongMaterial({map: wallTexture});
+			wallMaterial.side = THREE.DoubleSide;
+			var wall = new THREE.Mesh(new THREE.PlaneGeometry(14, 5), wallMaterial);
+			wall.position.set(0, 2.5, 10);
+			wall.rotation.y = Math.PI;
+			wall.castShadow = true;
+			wall.receiveShadow = true;
+			objectList.push(wall);
+			scene.add(wall);
+			document.body.appendChild(renderer.domElement);
+			window.addEventListener('resize', onWindowResize, false);
+			// listen the keyboard event - WASD movement
+			document.addEventListener('keydown', function(e) {
+				if (e.keyCode == '38' || e.key.toUpperCase() == 'W') { // up
+					moveUp = true;
+				}
+				else if (e.keyCode == '40' || e.key.toUpperCase() == 'S') { // down
+					moveDown = true;
+				}
+				else if (e.keyCode == '37' || e.key.toUpperCase() == 'A') { // left
+					moveLeft = true;
+				}
+				else if (e.keyCode == '39' || e.key.toUpperCase() == 'D') { // right
+					moveRight = true;
+				}
+			})
+			document.addEventListener('keyup', function(e) {
+				if (e.keyCode == '38' || e.key.toUpperCase() == 'W') { // up
+					moveUp = false;
+				}
+				else if (e.keyCode == '40' || e.key.toUpperCase() == 'S') { // down
+					moveDown = false;
+				}
+				else if (e.keyCode == '37' || e.key.toUpperCase() == 'A') { // left
+					moveLeft = false;
+				}
+				else if (e.keyCode == '39' || e.key.toUpperCase() == 'D') { // right
+					moveRight = false;
+				}
+			})			
+			// setting mouse controller
+			document.addEventListener('mousemove', function(event) {
+				if (mouseDown) {
+					mouseDX = event.clientX - mouseX;
+					mouseDY = event.clientY - mouseY;
+				}
+			    mouseX = event.clientX;
+			    mouseY = event.clientY;
+			}, false);
+			document.body.addEventListener("mousedown", function(event) {
+			    mouseDown = true;
+			}, false);
+			document.body.addEventListener("mouseup", function(event) {
+			    mouseDown = false;
+			}, false);
+		}
+
+		function createMirrors() {
+			var mirrors = [];
+			var materials = [];			
+			const mirrorCnt = parseInt(panel.NumOfMirrors);
+			// +1 when enabling dynamic mirror
+			var dynamicCnt = 1;
+			for (let m = 0; m < mirrorCnt + dynamicCnt; m++) {
+				// determine normal mirror or dynamic mirror
+				let dynamic = (m >= mirrorCnt);
+				var size = (dynamic ? 2.5 : 5);
+				var geometry = new THREE.PlaneGeometry(size, size);					
+				var uniforms = {
+					mirrorCnt: {type: 'i', value: mirrorCnt},
+					rotation: {type: 'm4', value: new THREE.Matrix4()},
+			        backgroundColor: {type: 'v3', value: scene.background},
+			        light: {type: 'Light', value: {position: light.position, color: light.color, ambient: [0.2, 0.2, 0.2]}},
+			        depth: {type: 'i', value: panel.Depth},
+			        border: {type: 'f', value: panel.BorderThickness},
+			        mirrorColor: {type: 'v4', value: [0, 0, 0, 0]},
+			        diffuse: {type: 'f', value: mirrorController.Diffuse},
+			        dynamicMirrorExist: {type: 'b', value: mirrorController.DynamicMirror}
+			    };
+				var material = new THREE.ShaderMaterial({
+					uniforms: uniforms,
+					vertexShader: vertexShader(),
+					fragmentShader: fragmentShader(),
+				});
+				var mirror = new THREE.Mesh(geometry, material);
+				mirror.material.side = THREE.DoubleSide;
+				mirror.castShadow = true;
+				mirror.isMirror = true;	
+				if (dynamic) {
+					mirror.position.set(mirrorController.X, mirrorController.Y, mirrorController.Z); 
+					mirror.rotation.y = mirrorController.EulerY * Math.PI / 180;
+					mirror.visible = mirrorController.DynamicMirror;
+					mirror.dynamic = true; // user-data: to indicate this is dynamic mirror
+					dynamicMirrorObj = mirror;				
+				}
+				else {
+					var pos = positions[mirrorCnt];
+					var rot = rotations[mirrorCnt];
+					mirror.position.set(pos[m][0], pos[m][1], pos[m][2]); 
+					mirror.rotation.y = rot[m] * Math.PI / 180;								
+				}			
+				materials.push(material);
+				mirrors.push(mirror);					
+				objectList.push(mirror);
+			}
+
+			// repass uniforms after creating the mirror meshes
+			for (let m = 0; m < mirrorCnt + dynamicCnt; m++) {
+				var mirror = mirrors[m];
+				var material = materials[m];
+				let dynamic = (m >= mirrorCnt);				
+				material.uniforms.rotation = {
+					type: 'm4', 
+					value: new THREE.Matrix4().makeRotationFromQuaternion(mirror.quaternion),
+				};
+				material.uniforms.planesCnt = {type: 'i', value: objectList.length - dynamicCnt};
+				//material.uniforms.planes = [];
+				for (let i = 0; i < objectList.length; i++) {
+					var vertices = Array.from(objectList[i].geometry.vertices);				
+					for (let vi = 0; vi < vertices.length; vi++) {
+						vertices[vi] = Object.create(vertices[vi]); // deep copy
+						vertices[vi].applyQuaternion(objectList[i].quaternion);
+						vertices[vi].add(objectList[i].position);
+					}
+					var p = { type: 'Plane', value: {
+						isMirror: objectList[i].isMirror ? true : false,
+			        	position: objectList[i].position, 
+			        	tex: objectList[i].material.map,
+			        	v0: vertices[0],
+			        	v1: vertices[1],
+			        	v2: vertices[2],
+			        	v3: vertices[3],
+			        }};
+			        if (objectList[i].dynamic) {
+			        	material.uniforms['dynamicMirror'] = p;
+			        }
+			        else {
+				        let item = 'plane' + (i + 1);	
+				        material.uniforms[item] = p;
+			    	}
+				}
+				scene.add(mirror);							
+			}
+		}
+
+		function vertexShader() {
+			return document.getElementById('vertex-shader').textContent;
+		}
+
+
+		function fragmentShader() {
+			return document.getElementById('fragment-shader').textContent;
+		}
+
+		function createDatGui() {
+			var gui = new dat.GUI();
+			// create scene attributes
+			gui.add(panel, 'NumOfMirrors', [3, 4, 5]).onFinishChange(cnt => {
+				objectList = objectList.filter(obj => {
+					if (obj.isMirror) {						
+						scene.remove(obj);
+						return false;
+					}
+					return true;
+				});
+				createMirrors();
+				console.log(objectList);
+			});
+			gui.add(panel, 'Tile', tileMapper).onFinishChange(path => {
+				var groundTexture = (new THREE.TextureLoader()).load(path);
+				var groundMaterial = new THREE.MeshPhongMaterial({map: groundTexture});
+				ground.material = groundMaterial;
+				objectList = objectList.filter(obj => {
+					if (obj.isMirror) {						
+						scene.remove(obj);
+						return false;
+					}
+					return true;
+				});
+				createMirrors();
+			});
+			gui.add(panel, 'Depth', 1, 100, 1).onFinishChange(depth => {
+				objectList.forEach(obj => {
+					if (obj.isMirror) {
+						obj.material.uniforms.depth.value = Math.floor(depth);
+					}
+				});
+			});
+			gui.add(panel, 'BorderThickness', 0.0, 0.05, 0.01).onFinishChange(thickness => {
+				objectList.forEach(obj => {
+					if (obj.isMirror) {
+						obj.material.uniforms.border.value = thickness;
+					}
+				});				
+			})
+			// create mirror attributes			
+			gui.addColor(mirrorController, 'Color').onFinishChange(c => {
+				objectList.forEach(obj => {
+					if (obj.isMirror) {
+						let alpha = obj.material.uniforms.mirrorColor.value[3];
+						obj.material.uniforms.mirrorColor.value = [c[0], c[1], c[2], alpha];
+					}
+				});	
+			});
+			gui.add(mirrorController, 'ColorAlpha', 0, 1, 0.01).onFinishChange(a => {
+				objectList.forEach(obj => {
+					if (obj.isMirror) obj.material.uniforms.mirrorColor.value[3] = a;
+				});						
+			});
+			gui.add(mirrorController, 'Diffuse', 0, 10, 1).onFinishChange(d => {
+				objectList.forEach(obj => {
+					if (obj.isMirror) {
+						obj.material.uniforms.diffuse.value = d / 100;
+					}
+				});	
+			});
+			gui.add(mirrorController, 'DynamicMirror').onFinishChange(enabled => {
+				if (enabled) {
+					// append dat gui for control of the dynamic mirror
+					var dynamicMirrorFolder = gui.addFolder('Dynamic Mirror');
+					var mc = mirrorController;					
+					onDynamicMirrorPosChanged = data => {						
+						// move the mirror in reality					
+						dynamicMirrorObj.rotation.y = mc.EulerY / 180 * Math.PI;	
+						dynamicMirrorObj.position.set(mc.X, mc.Y, mc.Z);						
+						var quat = (new THREE.Matrix4()).makeRotationFromQuaternion(dynamicMirrorObj.quaternion);
+						dynamicMirrorObj.material.uniforms.rotation.value = quat;
+						// edit the uniforms passed to other mirrors
+						var vertices = dynamicMirrorObj.geometry.vertices;
+						var nv = [0, 0, 0, 0];
+						for (let vi = 0; vi < vertices.length; vi++) {
+							nv[vi] = new THREE.Vector3(vertices[vi].x, vertices[vi].y, vertices[vi].z); // deep copy
+							nv[vi].applyQuaternion(dynamicMirrorObj.quaternion);								
+							nv[vi].add(dynamicMirrorObj.position);
+						}							
+						objectList.forEach(obj => {								
+							if (obj.isMirror) {				
+								obj.material.uniforms['dynamicMirror'].value.position = dynamicMirrorObj.position;
+								obj.material.uniforms['dynamicMirror'].value.v0 = nv[0];
+								obj.material.uniforms['dynamicMirror'].value.v1 = nv[1];								
+								obj.material.uniforms['dynamicMirror'].value.v2 = nv[2];
+								obj.material.uniforms['dynamicMirror'].value.v3 = nv[3];
+							}
+						});
+					}				
+					dynamicMirrorFolder.add(mirrorController, 'X', -5, 5, 0.1).onFinishChange(onDynamicMirrorPosChanged);
+					dynamicMirrorFolder.add(mirrorController, 'Y', 0, 10, 0.1).onFinishChange(onDynamicMirrorPosChanged);
+					dynamicMirrorFolder.add(mirrorController, 'Z', -5, 5, 0.1).onFinishChange(onDynamicMirrorPosChanged);
+					dynamicMirrorFolder.add(mirrorController, 'EulerY', -180, 180, 0.1).onFinishChange(onDynamicMirrorPosChanged);
+					dynamicMirrorObj.visible = true;
+					objectList.forEach(obj => {
+						if (obj.isMirror) {
+							obj.material.uniforms.dynamicMirrorExist.value = true;
+						}
+					});											
+				}
+				else {
+					gui.removeFolder('Dynamic Mirror');
+					dynamicMirrorObj.visible = false;
+					objectList.forEach(obj => {
+						if (obj.isMirror) {
+							obj.material.uniforms.dynamicMirrorExist.value = false;
+						}
+					});							
+				}			
+			})	
+		}
+
+		function moveCamera() {
+			// mouse camera control
+		    if (mouseDown) {
+		        camera.rotateY(mouseDX / 80);
+		        mouseDX = 0; 
+		        mouseDY = 0;
+		    }		    
+		    // keyboard camera control
+		    if (moveUp) camera.translateZ(-0.05);
+		    if (moveDown) camera.translateZ(0.05);
+		    if (moveLeft) camera.translateX(-0.05);
+		    if (moveRight) camera.translateX(0.05);
+		    // top view dot following the camera
+		    topViewDot.geometry.vertices[0] = camera.position;
+		    topViewDot.geometry.verticesNeedUpdate = true;
+		}
+
+		function animate() {
+			requestAnimationFrame(animate);
+			moveCamera();
+			renderer.render(scene, camera);
+			topViewRenderer.render(scene, topViewCamera);
+		};		
+
+		function onWindowResize() {
+			camera.aspect = window.innerWidth / window.innerHeight;
+    		camera.updateProjectionMatrix();
+    		renderer.setSize(window.innerWidth, window.innerHeight);
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>SVG Game</title>
+  <!-- Pineapple favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png"/>
+  <script language="JavaScript" src="/projects/svg_game/game.js"></script>
+  <script language="JavaScript" src="/projects/svg_game/highscore.js"></script>
+  <style>
+	@font-face {
+		font-family: Cheri;
+		src: url(font/Cheri.ttf);
+	}
+	.normal-stage {
+		fill: url(#choco-pattern);
+	}
+	.y-stage {
+		fill: brown;
+	}	
+	.d-stage {
+		fill: url(#red-choco-pattern);
+	}	
+	.display-font {
+		fill: orange;
+		font-size: 25px;
+		font-weight: bold;
+		text-anchor: middle;
+		font-family: Cheri;
+	}
+	.cheat-font {	
+		fill: red;
+		font-size: 25px;
+		font-weight: bold;
+		font-family: Cheri;
+	}
+	.text-font {
+		fill: black;
+		font-size: 26px;
+		text-anchor: middle;
+		font-family: Cheri;
+	}
+	.player-name {
+		fill: black;
+		font-size: 16px;
+		text-anchor: middle;
+		font-family: Cheri;
+	}
+	input {
+		height: 26px;
+		width: 160px;
+		border: 2px solid orange;
+		border-radius: 10px;
+		font-size: 20px;
+		font-family: Cheri;
+		padding: 0px 10px 0px 10px;
+	}
+	.unselectable {
+		user-select: none;
+        -moz-user-select: none;
+        -khtml-user-select: none;
+        -webkit-user-select: none;
+        -o-user-select: none;
+	}
+	input:focus {
+		outline: none;
+	}
+	input::selection {
+		color: white; 
+		background: orange;
+	}
+  </style>
+</head>
+
+<body style="text-align: center">
+<svg width="800px" height="600px"
+     xmlns="http://www.w3.org/2000/svg"
+     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns:a="http://www.adobe.com/svg10-extensions" a:timeline="independent">
+
+  <defs>
+  	<pattern id="choco-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+		<g transform="scale(0.1)">
+			<rect width="200" height="200" fill="rgb(140,90,60)"/>
+			<rect x="10" y="10" width="80" height="80" fill="chocolate" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+			<rect x="110" y="10" width="80" height="80" fill="chocolate" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+			<rect x="10" y="110" width="80" height="80" fill="chocolate" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+			<rect x="110" y="110" width="80" height="80" fill="chocolate" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+		</g>
+	</pattern>
+  	<pattern id="red-choco-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+		<g transform="scale(0.1)">
+			<rect width="200" height="200" fill="rgb(200,110,60)"/>
+			<rect x="10" y="10" width="80" height="80" fill="rgb(255, 140, 30)" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+			<rect x="110" y="10" width="80" height="80" fill="rgb(255, 140, 30)" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+			<rect x="10" y="110" width="80" height="80" fill="rgb(255, 140, 30)" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+			<rect x="110" y="110" width="80" height="80" fill="rgb(255, 140, 30)" style="stroke:rgb(120,70,50);stroke-width:10px"/>
+		</g>
+	</pattern>	
+	
+	<g id="monster">
+		<path d="M20,38 h12 a7,7 0 1,0 0,-14 h-4 a6,6 0 1,0 0,-12 h-3 a4,4 0 1,0 0,-8 h-2 l-8,-3
+				l2,3 h-2 a4,4 0 1,0 0,8 h-3 a6,6 0 1,0 0,12 h-4 a7,7 0 1,0 0,14 h12" stroke="black" 
+				stroke-width="1.5" fill="brown"/>
+		<ellipse cx="15" cy="18" rx="2" ry="3" style="fill:black">
+			<animate attributeName="ry" values="3;3;3;3;3;3;3;3;3;3;3;3;3;1" dur="4s" repeatCount="indefinite"/>
+		</ellipse>
+		<ellipse cx="25" cy="18" rx="2" ry="3" style="fill:black">
+			<animate attributeName="ry" values="3;3;3;3;3;3;3;3;3;3;3;3;3;1" dur="4s" repeatCount="indefinite"/>
+		</ellipse>
+		<path d="M14,26 l12,0 q0,6 -6,6 t-6,-6" style="fill:rgb(180,0,20);stroke:black;stroke-black:2"/>
+	</g>
+	<g id="monster-king">
+		<path d="M20,38 h12 a7,7 0 1,0 0,-14 h-4 a6,6 0 1,0 0,-12 h-3 a4,4 0 1,0 0,-8 h-2 l-8,-3
+				l2,3 h-2 a4,4 0 1,0 0,8 h-3 a6,6 0 1,0 0,12 h-4 a7,7 0 1,0 0,14 h12" stroke="black" 
+				stroke-width="1.5" fill="brown"/>
+		<path d="M12,16 l4,2.5 l-4,2.5" style="fill:none;stroke:black;stroke-black:2" />
+		<path d="M28,16 l-4,2.5 l4,2.5" style="fill:none;stroke:black;stroke-black:2" />
+		<path d="M14,26 l12,0" style="stroke:black;stroke-black:2"/>
+		<g id="tongue">
+			<ellipse cx="20" cy="29" rx="3" ry="4" style="fill:rgb(180,0,20);stroke:black;stroke-black:2"/>
+			<path d="M20,26 v5" style="fill:none;stroke:black;stroke-black:2" />
+			<animateTransform attributeName="transform" type="translate" values="1 0;-1 0;1 0" dur="1s" repeatCount="indefinite" />
+		</g>
+	</g>
+	
+	<g id="good-thing">
+		<g id="cream">
+			<circle cx="20" cy="20" r="10" 
+				style="stroke:black; stroke-width:1.5; fill:white"/>
+			<path d="M10,20 a1,1 0 1,1 2,0 a1,1 0 1,0 3,0 a2,2 0 1,1 5,0
+				a2,2 0 1,0 6,0 a1,1 0 1,1 2,0 a1,1 0 1,0 2,0 a10,10 1 0,0 -20,0" 
+				style="stroke:black;stroke-width:1.5;fill:inherit"/>
+		</g>
+	</g>
+	<g id="bullet" fill="lightgray">
+		<circle cx="5" cy="5" r="5" style="fill:inherit; stroke: black"/>
+		<circle cx="6" cy="3" r="1" style="fill:pink"/>
+	</g>
+	
+	<g id="monster-bullet">
+		<g transform="scale(0.4)">
+		<path d="M20,38 h12 a7,7 0 1,0 0,-14 h-4 a6,6 0 1,0 0,-12 h-3 a4,4 0 1,0 0,-8 h-2 l-3,-3
+				l-3,3 h-2 a4,4 0 1,0 0,8 h-3 a6,6 0 1,0 0,12 h-4 a7,7 0 1,0 0,14 h12" stroke="black" 
+				stroke-width="1.5" fill="brown"/>
+		</g>	
+	</g>
+	
+    <clipPath id="gameareaclip">
+      <rect x="20" y="20" width="600" height="560"/>
+    </clipPath>
+    <pattern id="background_pattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+		<g transform="rotate(30,20,20)">
+		  <rect width="40" height="40" style="fill:rgb(255,255,255)"/>
+		  <path d="M5,20 h30 l-5,20 h-20 l-5,-20" fill="rgb(200,200,100)"/>
+		  <circle cx="20" cy="10" r="8" style="fill:pink"/>
+		  <circle cx="12" cy="18" r="8" style="fill:lightyellow"/>
+		  <circle cx="28" cy="18" r="8" style="fill:lightgreen"/>
+		</g>
+    </pattern>
+    <radialGradient id="player_color">
+      <stop offset="0.0" style="stop-color:yellow;stop-opacity:1"/>
+      <stop offset="0.8" style="stop-color:yellow;stop-opacity:1"/>
+      <stop offset="1.0" style="stop-color:orange;stop-opacity:1"/>
+    </radialGradient>
+	<linearGradient id="portal-grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+		<stop offset="0%" style="stop-opacity:1;stop-color:rgb(246,103,0);" />
+		<stop offset="100%" style="stop-opacity:0;stop-color:rgb(246,103,0);" />
+	</linearGradient>
+	<linearGradient id="portal-grad2" x1="0%" y1="0%" x2="100%" y2="0%">
+		<stop offset="0%" style="stop-opacity:1;stop-color:rgb(56,185,231);" />
+		<stop offset="100%" style="stop-opacity:0;stop-color:rgb(56,185,231);" />		
+	</linearGradient>
+	<!-- Gradient for background -->
+	<radialGradient id="bg-grad" cx="50%" cy="50%" r="75%" fx="50%" fy="0%">
+      <stop offset="0%" style="stop-color:rgb(255,255,255); stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(230,200,170); stop-opacity:1" />
+    </radialGradient>	
+	<!-- Crystal Filter -->
+	<filter id="crystal-light">
+	 <!--Blur effect-->
+	<feGaussianBlur stdDeviation="10" result="blur3" />
+	 <!--Lighting effect-->
+	<feSpecularLighting result="spec3" in="blur3" specularConstant="1.2" specularExponent="7" lighting-color="#FFF">
+		<!--Light source effect-->
+		<feSpotLight x="200" y="100" z="200" limitingConeAngle="9" />
+	</feSpecularLighting>
+	<!--Composition of inputs-->
+	<feComposite in="SourceGraphic" in2="spec3" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
+	</filter>
+  </defs>
+
+  <rect width="100%" height="100%" style="fill:url(#background_pattern);stroke:orange;stroke-width:4" />
+
+  <rect x="20" y="20" width="600" height="560" style="fill:black;stroke:orange;stroke-width:5" />
+
+  <!-- Add your button here -->
+
+	<g style="clip-path:url(#gameareaclip);">
+		<g transform="translate(20,20)">
+		  <g id="gamearea" transform="translate(0,0)" width="600" height="560">
+		  	<!-- Background -->
+			<rect x="0" y="0" width="600" height="560" style="fill:url(#bg-grad);" />
+			
+			<g id="platforms">
+				<!-- Base platform -->
+				<rect x="0" y="0" width="600" height="20" class="normal-stage"/>
+				<rect x="0" y="0" width="20" height="480" class="normal-stage"/>
+				<rect x="0" y="540" width="600" height="20" class="normal-stage"/>
+				<rect x="580" y="0" width="20" height="480" class="normal-stage"/>
+				<rect x="270" y="100" width="60" height="500" class="normal-stage"/>
+				
+				<!-- left platforms -->
+				<rect x="200" y="100" width="100" height="20" class="normal-stage"/>
+				<rect x="160" y="220" width="80" height="20" class="normal-stage"/>
+				<rect x="180" y="200" width="40" height="20" class="normal-stage"/>
+				<rect x="200" y="180" width="20" height="20" class="normal-stage"/>
+				<rect x="220" y="160" width="20" height="60" class="normal-stage"/>
+				<rect x="20" y="300" width="100" height="20" class="normal-stage"/>
+				<rect x="210" y="300" width="100" height="20" class="normal-stage"/>
+				<rect x="60" y="380" width="160" height="20" class="normal-stage"/>
+				<rect x="0" y="460" width="100" height="20" class="normal-stage"/>
+				<rect x="230" y="460" width="160" height="20" class="normal-stage"/>
+				
+				<!-- left decoration -->
+				<rect x="20" y="20" width="20" height="20" class="normal-stage"/>
+				<rect x="20" y="240" width="20" height="20" class="normal-stage"/>
+				<rect x="20" y="260" width="40" height="20" class="normal-stage"/>
+				<rect x="20" y="280" width="60" height="20" class="normal-stage"/>
+				<rect x="20" y="320" width="20" height="20" class="normal-stage"/>
+				<rect x="20" y="440" width="20" height="20" class="normal-stage"/>
+				<rect x="250" y="320" width="20" height="20" class="normal-stage"/>
+				<rect x="250" y="440" width="100" height="20" class="normal-stage"/>
+				
+				<!-- right platforms -->
+				<rect x="460" y="100" width="80" height="20" class="normal-stage"/>
+				<rect x="480" y="120" width="40" height="280" class="normal-stage"/>
+				<rect x="330" y="170" width="40" height="40" class="normal-stage"/>
+				<rect x="330" y="280" width="60" height="20" class="normal-stage"/>
+				<rect x="330" y="300" width="20" height="40" class="normal-stage"/>
+				<rect x="420" y="400" width="80" height="20" class="normal-stage"/>
+				<rect x="520" y="460" width="80" height="20" class="normal-stage"/>
+				<rect x="370" y="480" width="20" height="20" class="normal-stage"/>	
+				
+				<!-- right right platforms -->
+				<rect x="560" y="160" width="20" height="20" class="normal-stage"/>
+				<rect x="520" y="220" width="20" height="20" class="normal-stage"/>
+				<rect x="560" y="280" width="20" height="20" class="normal-stage"/>
+				<rect x="520" y="340" width="20" height="20" class="normal-stage"/>
+				<rect x="560" y="400" width="20" height="20" class="normal-stage"/>
+		
+				
+				<!-- Movable platforms -->
+				<rect x="50" y="100" width="80" height="20" y1="100" y2="180" speed="2" class="y-stage"/>
+				
+				<!-- Disappearing platforms -->
+				<rect x="330" y="100" width="130" height="20" class="d-stage" style="opacity:1.0"/>
+				<rect x="420" y="220" width="60" height="20" class="d-stage" style="opacity:1.0"/>
+				<rect x="400" y="340" width="20" height="20" class="d-stage" style="opacity:1.0"/>
+			</g>
+			<g id="exit" x="280" y="50" transform="translate(280,50)">
+				<g id="exit-crystal" filter="">
+					<g id="crystal" style="stroke:black;opacity:0.8">
+						<path d="M20,0 l-12,12 l6,3 z" tofill="rgb(140,240,230)"/>
+						<path d="M20,0 l-6,15 h12 z" tofill="rgb(0,200,220)"/>
+						<path d="M20,0 l6,15 l6,-3 z" tofill="rgb(20,220,220)"/>
+						<path d="M8,36 l12,10 l-6,-9 z" tofill="rgb(110,220,200)"/>
+						<path d="M14,37 l6,9 l6,-9 z" tofill="rgb(0,200,220)"/>
+						<path d="M26,37 l-6,9 l12,-10 z" tofill="rgb(20,180,160)"/>
+						<path d="M8,12 v24 l6,1 v-22 z" tofill="rgb(140,240,230)"/>
+						<path d="M14,15 v22 h12 v-22 z" tofill="rgb(0,200,220)"/>
+						<path d="M26,15 v22 l6,-1 v-24 z" tofill="rgb(20,220,220)"/>
+						<animateTransform type="translate" values="0 -4;0 0;0 0;0 -4;" dur="1.2s" repeatCount="indefinite" />
+					</g>
+				</g>
+			</g>
+			<g id="good-things"/> <!-- creams group -->
+			<g id="player" fill="lightgray">
+				<text class="player-name unselectable" id="player_name" x="14" y="-6" text-anchor="middle" fill="black"></text>
+				<g id="player_animate">
+					<g>
+						<g transform="rotate(15,20,20) scale(0.66)">
+						<path d="M20,38 h12 a7,7 0 1,0 0,-14 h-4 a6,6 0 1,0 0,-12 h-3 a4,4 0 1,0 0,-8 h-2 l-3,-3
+								l-3,3 h-2 a4,4 0 1,0 0,8 h-3 a6,6 0 1,0 0,12 h-4 a7,7 0 1,0 0,14 h12" stroke="black" stroke-width="1.5" style="fill:inherit"/>
+						<path d="M10,39 h20 l-5,20 h-10 l-5,-20" stroke="black" fill="rgb(200,200,100)"/>
+						<ellipse cx="16" cy="46" rx="1.5" ry="2" style="fill:black">
+						</ellipse>
+						<ellipse cx="24" cy="46" rx="1.5" ry="2" style="fill:black">				
+						</ellipse>
+						</g>
+						<animateTransform id="player_bounce" attributeName="transform" type="translate" values="0 0" dur="0.4s" repeatCount="indefinite"/>
+					</g>
+				</g>
+			</g>
+			<g id="monsters"/> <!-- monsters group -->
+			<g id="monster-bullets"/> <!-- monster bullets group -->
+			<g id="bullets"/> <!-- bullets group -->
+			<g id="portals">
+				<g id="portal-orange" x="0" y="480" transform="translate(0,480)">
+					<rect width="6" height="60" style="fill:rgb(246,103,0)"/>
+					<rect x="4" width="50" height="60" fill="url(#portal-grad1)" style="opacity:0.8">
+						<animate attributeType="CSS" attributeName="opacity" 
+							values="1;0.6;1" dur="2s" repeatCount="indefinite" />
+					</rect>
+				</g>
+				<g id="portal-blue" x="544" y="480" transform="translate(544,480) scale(-1,1) translate(-56,0)">
+					<rect x="0" width="6" height="60" style="fill:rgb(56,185,231)"/>
+					<rect x="6" width="50" height="60" fill="url(#portal-grad2)" style="opacity:0.8">
+						<animate attributeType="CSS" attributeName="opacity" 
+							values="1;0.6;1" dur="2s" repeatCount="indefinite" />
+					</rect>
+				</g>
+			</g>
+			<!-- High Score Board -->
+			<g class="unselectable" id="highscoretable" transform="translate(40,40)" display="none">
+			  <rect width="520" height="480" style="fill:rgb(255,255,220);stroke:orange;stroke-width:2;"/>
+			  <text x="260" y="50" class="display-font" style="font-size:38">
+				High Score Table
+			  </text>
+			  <text id="highscoretext" y="60" class="text-font" style="font-size:30;text-anchor:start"/>
+			  <g id="start-again-btn" onclick="inputNameBeforeRestart(this)" onmouseover="document.getElementById('restart-bg').setAttribute('fill','rgb(255,255,60)')" style="cursor:pointer;"
+				onmouseout="document.getElementById('restart-bg').setAttribute('fill','rgb(255,255,140)')" transform="translate(260,440)">
+					<rect id="restart-bg" x="-90" y="-30" width="180" height="40" rx="20" fill="rgb(255,255,140)"/>
+					<text x="0" y="0" class="text-font" style="fill:rgb(255,180,0);">Start Again?</text>
+			  </g>
+		  <g id="restart-hidden" display="none">
+				  <foreignObject x="100" y="415" height="30" width="200">
+					<div xmlns="http://www.w3.org/1999/xhtml">
+						<input id="playername-reinput" type="text" maxlength="14"/>
+					</div>
+				  </foreignObject>
+					
+				  <g onclick="restart();document.getElementById('start-again-btn').setAttribute('display','block');" 
+					onmouseover="document.getElementById('real-start-bg').setAttribute('fill','rgb(255,255,60)')" style="cursor:pointer;"
+					onmouseout="document.getElementById('real-start-bg').setAttribute('fill','rgb(255,255,140)')" transform="translate(380,440)">
+						<rect id="real-start-bg" x="-70" y="-30" width="140" height="40" rx="20" fill="rgb(255,255,140)"/>
+						<text x="0" y="0" class="text-font" style="fill:rgb(255,180,0);">Restart</text>
+				  </g>	
+			  </g>
+			</g>
+		  </g>
+		</g>
+	</g>
+	<g class="unselectable">
+		<g transform="translate(640, 20)" fill="rgb(255,255,230)" style="stroke:orange;stroke-width:3">
+			<rect width="140" height="420"/>
+		</g>
+		<g transform="translate(640, 60)">
+		  <text x="70" y="0" class="display-font">
+			Level:
+		  </text>
+		  <text id="level" x="70" y="36" class="display-font">1</text>
+		</g>		
+		<g transform="translate(640, 160)">
+		  <text x="70" y="0" class="display-font">
+			Score:
+		  </text>
+		  <text id="score" x="70" y="36" class="display-font">0</text>
+		</g>
+		<g transform="translate(640, 260)">
+		  <text x="70" y="0" class="display-font">
+			Time:
+		  </text>  
+		  <text id="time-remain" x="70" y="36" class="display-font"></text>
+		</g>
+		<g transform="translate(640, 360)">
+		  <text x="70" y="0" class="display-font">
+			Bullet:
+		  </text>
+		  <g id="bullet-remain"></g>
+		</g>
+		<g transform="translate(750, 550) scale(0.3)" onclick="muteBGM()" onmouseout="document.getElementById('sound-circle').setAttribute('fill','lemonchiffon')" 
+			onmouseover="document.getElementById('sound-circle').setAttribute('fill','rgb(200,200,0)')" style="cursor:pointer;">
+			<g style="stroke:black;stroke-width:5;fill:none" >
+				<circle id="sound-circle" cx="45" cy="52" r="50" fill="lightyellow" />
+				<path d="M30,70 v-40 l40,-10 v40" />
+				<path d="M30,40 l40,-10" />
+				<ellipse cx="22" cy="76" rx="10" ry="5" transform="rotate(-35,22,76)" fill="black"/>
+				<ellipse cx="62" cy="66" rx="10" ry="5" transform="rotate(-35,62,66)" fill="black"/>
+			</g>
+			<g id="mute-crossline" style="stroke:red;stroke-width:8;fill:none" display="none">
+				<path d="M10,80 l70,-70" />
+			</g>
+		</g>	
+		<g transform="translate(640, 500)" id="cheat_display" style="display:none;">
+			<text class="cheat-font">Cheat Mode</text>
+		</g>
+	</g>
+	<!-- starting screen -->
+	<g class="unselectable" id="starting-screen" display="block" transform="translate(20,20)">
+		<rect width="760" height="560" style="fill:white;stroke:orange;stroke-width:5"/>
+		<use x="0" y="0" xlink:href="#monster" transform="translate(180,80) scale(10)" style="opacity:0.1"/>
+		<text x="380" y="100" class="text-font" style="font-size:50px; fill:rgb(255,180,0);">Ice Cream's Adventure</text>
+		<text x="380" y="180" class="text-font">You are a cone of vanilla ice cream.</text>
+		<text x="380" y="220" class="text-font">You want to eat ice cream with different flavors.</text>
+		<text x="320" y="260" class="text-font">Collect the colored icecream balls:</text>
+		<use x="560" y="230" xlink:href="#good-thing" fill="rgb(255,0,0)"/><use x="590" y="230" xlink:href="#good-thing" fill="rgb(0,255,0)"/>
+		<use x="620" y="230" xlink:href="#good-thing" fill="rgb(0,0,255)"/>
+		<text x="320" y="300" class="text-font">Defeat the poop monsters:</text>
+		<use x="520" y="270" xlink:href="#monster"/><use x="570" y="270" xlink:href="#monster-king"/>
+		<text x="340" y="340" class="text-font">Escape through the teleport crystal:</text>
+		<g style="stroke:black;opacity:0.8" transform="translate(580,310)">
+			<path d="M20,0 l-12,12 l6,3 z" fill="rgb(140,240,230)"/>
+			<path d="M20,0 l-6,15 h12 z" fill="rgb(0,200,220)"/>
+			<path d="M20,0 l6,15 l6,-3 z" fill="rgb(20,220,220)"/>
+			<path d="M8,36 l12,10 l-6,-9 z" fill="rgb(110,220,200)"/>
+			<path d="M14,37 l6,9 l6,-9 z" fill="rgb(0,200,220)"/>
+			<path d="M26,37 l-6,9 l12,-10 z" fill="rgb(20,180,160)"/>
+			<path d="M8,12 v24 l6,1 v-22 z" fill="rgb(140,240,230)"/>
+			<path d="M14,15 v22 h12 v-22 z" fill="rgb(0,200,220)"/>
+			<path d="M26,15 v22 l6,-1 v-24 z" fill="rgb(20,220,220)"/>
+		</g>
+		<g class="text-font" style="font-size:20px">
+		<text x="190" y="380">Left/Right : A/D</text><text x="190" y="410">Jump : W</text>
+		<text x="570" y="380">Shoot : Space</text><text x="570" y="410">Cheat/Uncheat : C/V</text>
+		</g>
+		<text class="text-font" x="300" y="454">Your name: </text>
+		<foreignObject x="380" y="430" height="30" width="200">
+			<div xmlns="http://www.w3.org/1999/xhtml">
+				<input id="player-name-input" type="text" maxlength="14"/>
+			</div>
+		</foreignObject>
+		<g onclick="load()" onmouseover="document.getElementById('start-bg').setAttribute('fill','rgb(255,255,60)')" style="cursor:pointer;"
+				onmouseout="document.getElementById('start-bg').setAttribute('fill','rgb(255,255,140)')" transform="translate(380,500)">
+			<rect id="start-bg" x="-50" y="-30" width="100" height="40" rx="20" fill="rgb(255,255,140)"/>
+			<text x="0" y="0" class="text-font" style="fill:rgb(255,180,0);">START</text>
+		</g>
+		<text x="740" y="500" class="text-font" style="font-size:14px; text-anchor:end;">Made by</text>
+		<text x="740" y="520" class="text-font" style="font-size:18px; text-anchor:end;">Yan Chiu Wai</text>
+		<text x="740" y="540" class="text-font" style="font-size:18px; text-anchor:end;">xxxx 2390</text>
+	</g>
+	<!-- Level Clear Screen -->
+	<g class="unselectable" id="level-clear-screen" display="none" transform="translate(20,20)">
+		<rect width="600" height="560" style="fill:white;stroke:orange;stroke-width:5"/>
+		<text x="300" y="100" class="text-font" style="font-size:50px; fill:rgb(255,180,0);">YUMMY!</text>
+		<text x="300" y="160" class="text-font" style="text-anchor:end">Stage Clear:</text>
+		<text x="380" y="160" id="stage-clear-stat" class="text-font" style="fill:rgb(255,180,0);">0</text>
+		<text x="300" y="200" class="text-font" style="text-anchor:end">Ice Cream Collected:</text>
+		<text x="350" y="200" id="ice-cream-collected" class="text-font" style="fill:rgb(255,180,0);">0</text>
+		<text x="400" y="200" class="text-font" style="text-anchor:start">x 10</text>
+		<text x="300" y="240" class="text-font" style="text-anchor:end">Monster Defeated:</text>
+		<text x="350" y="240" id="monster-defeated-stat" class="text-font" style="fill:rgb(255,180,0);">0</text>
+		<text x="400" y="240" class="text-font" style="text-anchor:start">x 5</text>
+		<path d="M50,260 h500" style="stroke:black;stroke-width:5"/>
+		<text x="300" y="300" class="text-font" style="text-anchor:end">Score:</text>
+		<text x="380" y="300" id="net-score-stat" class="text-font" style="fill:rgb(255,180,0);">0</text>
+		<text x="300" y="340" class="text-font" style="text-anchor:end">Original:</text>
+		<text x="380" y="340" id="original-score-stat" class="text-font" style="fill:rgb(255,180,0);">0</text>
+		<text x="300" y="380" class="text-font" style="text-anchor:end">Time Remaining:</text>
+		<text x="380" y="380" id="time-remaining-stat" class="text-font" style="fill:rgb(255,180,0);">0</text>
+		<path d="M50,400 h500" style="stroke:black;stroke-width:5"/>
+		<text x="300" y="440" class="text-font" style="text-anchor:end;font-weight:bold;">Total Score:</text>
+		<text x="380" y="440" id="total-score-stat" class="text-font" style="fill:rgb(255,180,0);font-weight:bold;">0</text>
+		<g onclick="nextLevel()" onmouseover="document.getElementById('next-bg').setAttribute('fill','rgb(255,255,60)')" style="cursor:pointer;"
+				onmouseout="document.getElementById('next-bg').setAttribute('fill','rgb(255,255,140)')" transform="translate(300,510)">
+			<rect id="next-bg" x="-90" y="-30" width="180" height="40" rx="20" fill="rgb(255,255,140)"/>
+			<text x="0" y="0" class="text-font" style="fill:rgb(255,180,0);">Next Level</text>
+		</g>		
+	</g>
+</svg>
+</body>
+
+</html>

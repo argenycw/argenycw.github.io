@@ -1,0 +1,85 @@
+html {
+	overflow-x: hidden;
+}
+
+#myself-pic-holder {
+	padding: 10px 50px 10px 50px;
+}
+
+.col-no-padding {
+	padding: 0 0 0 0;
+}
+
+.quote {
+	font-size: 24px;
+}
+
+.sidebar {
+	top: 56px;
+	left: 0;
+	position: sticky;
+	position: -webkit-sticky;
+	height: calc(100vh - 56px);
+	overflow-x: hidden;
+	overflow-y: auto;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+	z-index: 0;
+}
+
+.darker-background {
+	color: black;
+	background-color: rgb(248,249,250);
+}
+
+.ag-section {
+	margin: 5em 0 5em 0;
+	font-size: 18px;
+}
+
+.ag-section-title {
+	font-family: "Ubuntu";
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	font-weight: none;
+	color: var(--ag-gray);
+}
+
+.ag-section p {
+	padding: 10px 10px 10px 10px;
+}
+
+.ag-section hr {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	border-top: 1px solid rgba(0, 0, 0, .1);
+}
+
+.research-section {
+	font-family: sans-serif;
+	margin-bottom: 20px;
+}
+
+.research-section .row {
+	margin: 20px 0 20px 0;
+}
+
+.prompt-msg {
+	text-align: center;
+}
+
+@media only screen and (max-width: 992px) {
+	.length-control {
+		display: none;
+	}
+}
+
+@media only screen and (max-width: 768px) {
+	.sidebar {
+		top: 0;
+		position: relative;
+	}
+
+	.length-control {
+		display: block;
+	}
+}

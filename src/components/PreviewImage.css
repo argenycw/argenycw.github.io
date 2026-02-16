@@ -1,0 +1,12 @@
+.gray-filter img {
+	filter: gray; /* IE5+ */
+	-webkit-filter: grayscale(1); /* Webkit Nightlies & Chrome Canary */
+	-webkit-transition: all .5s ease-in-out;  
+	cursor: pointer;
+}
+
+.gray-filter img.colorable:hover {
+	filter: none;
+	-webkit-filter: grayscale(0);
+	-webkit-transform: scale(1.01);
+}

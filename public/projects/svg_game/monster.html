@@ -1,0 +1,29 @@
+<svg width="40" height="50">
+	<defs>
+        <filter id="crystal-light">
+         <!--Blur effect-->
+        <feGaussianBlur stdDeviation="10" result="blur3" />
+         <!--Lighting effect-->
+        <feSpecularLighting result="spec3" in="blur3" specularConstant="1.2" specularExponent="7" lighting-color="#FFF">
+            <!--Light source effect-->
+            <feSpotLight x="200" y="100" z="200" limitingConeAngle="9" />
+        </feSpecularLighting>
+        <!--Composition of inputs-->
+        <feComposite in="SourceGraphic" in2="spec3" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" />
+		</filter>
+    </defs>
+	<rect width="40" height="50" fill="rgb(243,230,220)"/>
+	<g filter="url(#crystal-light)">
+		<g style="stroke:black;opacity:0.8">
+			<path d="M20,0 l-12,12 l6,3 z" fill="rgb(140,240,230)"/>
+			<path d="M20,0 l-6,15 h12 z" fill="rgb(0,200,220)"/>
+			<path d="M20,0 l6,15 l6,-3 z" fill="rgb(20,220,220)"/>
+			<path d="M8,36 l12,10 l-6,-9 z" fill="rgb(140,240,230)"/>
+			<path d="M14,37 l6,9 l6,-9 z" fill="rgb(0,200,220)"/>
+			<path d="M26,37 l-6,9 l12,-10 z" fill="rgb(20,220,220)"/>
+			<path d="M8,12 v24 l6,1 v-22 z" fill="rgb(140,240,230)"/>
+			<path d="M14,15 v22 h12 v-22 z" fill="rgb(0,200,220)"/>
+			<path d="M26,15 v22 l6,-1 v-24 z" fill="rgb(20,220,220)"/>
+		</g>
+	</g>
+</svg>

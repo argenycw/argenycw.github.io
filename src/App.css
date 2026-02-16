@@ -1,0 +1,142 @@
+/* App.css */
+/* This file must be imported before any custom CSS files */
+
+:root {
+  --ag-lightblue: rgb(232,246,250);
+  --ag-blue: rgb(0,32,96);
+  --ag-red: rgb(192,0,0);
+  --ag-gray: #666;
+}
+
+@font-face {
+  font-family: 'Aptos';
+  src: url('/src/fonts/Aptos.ttf');
+}
+
+@font-face {
+  font-family: 'Ubuntu';
+  src: url('/src/fonts/Ubuntu-M.ttf');
+}
+
+html {
+  height: 100%;
+	scroll-behavior: smooth;
+}
+
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+h1 {
+	font-family: 'Aptos', sans-serif; /* Modern sans-serif font */
+	font-size: 36px; /* Adjust size as needed */
+	line-height: 36px;
+	font-weight: 700; /* Bold text */
+	color: #777; /* Dark text for contrast */
+	text-transform: uppercase; /* Optional: uppercase for modern feel */
+	letter-spacing: 2px; /* Spacing for elegance */
+	position: relative;
+	display: inline-block; /* Ensures the shadow doesn't span full width unnecessarily */
+	padding: 0.5rem 1rem; /* Padding around text */
+	margin: 1rem 0; /* Margin for spacing */
+	vertical-align: sub;
+}
+  
+/* The silver box beneath */
+h1::before {
+	content: "";
+	left: -2px;
+	top: -2px;
+	position: absolute;
+	height: 100%;
+	width: 60vw;
+	background: linear-gradient(
+		90deg,
+		rgba(192, 192, 192, 0.8) 0%, /* Silver (left) */
+		rgba(192, 192, 192, 0.8) 50%, /* Silver (left) */
+		rgba(192, 192, 192, 0) 100%  /* Transparent (right) */
+	); 
+	opacity: 0.5; /* Adjust for subtlety */
+}
+  
+
+/* Header & Footer */
+
+.ag-lightblue-bg {
+  background-color: var(--ag-lightblue);
+}
+
+.ag-blue {  
+  color: var(--ag-blue);
+}
+
+.ag-red {
+  color: var(--ag-red);
+}
+
+.ag-gray {
+  color: var(--ag-gray);
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.upper {
+  text-transform: uppercase;
+}
+
+/* Utilities */
+.selectable {
+	-webkit-touch-callout: auto;
+    -webkit-user-select: auto;
+    -khtml-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
+}
+
+.unselectable {
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Extending the screen size of Bootstrap */
+@media (min-width: 1600px) {
+  .col-xxl {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .col-xxl-2 {
+    flex: 0 0 16.67%;  
+    max-width: 16.67%;
+  }
+
+  .col-xxl-6 {
+    flex: 0 0 50%;  
+    max-width: 50%;
+  }
+
+  .col-xxl-10 {
+    flex: 0 0 83.33%;  
+    max-width: 83.33%;
+  }
+}
+
+
+
+main {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.alert {
+  font-size: 16px;
+}

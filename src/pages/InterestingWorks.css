@@ -1,0 +1,104 @@
+main {
+	font-family: "Aptos", "Arial";
+	background-color: white;
+}
+
+input[type=number] {
+	width: 40px;
+    padding-left: 5px;
+}
+
+.nav-link.active {
+	background-color: rgb(242,242,242) !important;
+	border-bottom: 1px solid rgb(242,242,242) !important;
+}
+
+.nav-pills {
+	background-color: rgb(242,242,242);
+}
+
+.bordered {
+	padding: 2rem 2rem 2rem 2rem;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	border: 1px solid #dee2e6;
+	background-color: rgb(242,242,255);
+}
+
+.bordered-except-top {
+	border-left: 1px solid #dee2e6;
+	border-right: 1px solid #dee2e6;
+	border-bottom: 1px solid #dee2e6;
+}
+
+.iw-panel {
+	font-family: "Aptos", "Arial";
+}
+
+/* Remove stepper (the arrow) */
+input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+.matrix-values {
+	margin-top: 1rem;
+}
+
+.iw-panel table {
+	text-align: center;
+	overflow: auto;
+}
+
+.matrix-values td {
+	width: 42px;
+	height: 32px;
+}
+
+.overflow-table {
+	overflow: auto;
+}
+
+/* For catchUs layout */
+.escape {
+	position: absolute;
+	color: red;
+	cursor: default;
+}
+
+.game-border {
+	display: none;
+	border: 3px solid;
+	border-color: black;
+	width: 100%;
+	height: 500px;
+	min-height: 500px;
+	background-color: white;
+}
+
+.game-border #cast-area {
+	height: 100%;
+	width: 100%;
+}
+
+.rectangle {
+    border: 1px solid #0000FF;
+	background-color: #22E;
+	opacity: 0.4;
+    position: absolute;
+}
+
+.game-unplayable {display: none;}
+
+.game-score {
+	display: none;
+	color: #222;
+	text-align: right;
+	font-size: 18px;
+	cursor: default;
+}
+
+.remark {
+	color: #222;
+	font-size: 14px;
+}

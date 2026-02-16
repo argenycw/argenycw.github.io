@@ -1,0 +1,45 @@
+.footer-box {	
+	font-family: sans-serif;
+	color: #DDD;
+	background-color: #444;
+
+	flex-shrink: 0;
+	padding-top: 10px;
+	padding-bottom: 10px;	
+}
+
+.icon {
+	color: #DDD;
+	font-size: 24px;
+	letter-spacing: 0px;
+}
+
+.nav-bar-push {
+	margin-top: 56px;
+}
+
+.acknowledgement {
+    font-size: 14px;
+}
+
+.facebook-hover:hover {
+	color: rgb(59,88,156);
+	cursor: pointer;
+}
+
+.github-hover:hover {	
+	cursor: pointer;
+	/*color: rgb(149,157,165);*/
+	color: rgb(0, 0, 0);
+}
+
+.linkedin-hover:hover {	
+	cursor: pointer;
+	color: rgb(10, 102, 194);
+}
+
+.twitter-hover:hover {	
+	cursor: pointer;
+	color: rgb(29, 155, 240);
+}
+

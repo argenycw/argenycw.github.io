@@ -1,0 +1,49 @@
+{
+	"background": {
+		"color": "#282828"
+	},
+	"blockArea": {
+		"width": "15%",
+		"color": "#111"
+	},
+	"hitArea": {
+		"width": "8%"
+	},
+	"flashArea": {
+		"width": "20%",
+    "color": "#0030c0",
+    "double": "#30c030",
+    "reverse": "#f08030",
+    "wrong": "#c03000",
+	"fade": 1000
+	},
+	"explosion": {
+		"top": "76%",
+		"radius": "30",
+		"scale": "14vh",
+		"color": "#9999ff",
+		"fade": 5000
+	},
+	"hitCenter": {
+		"x": "23%",
+		"radius": "3vh",
+		"color": "#ffffff"
+	},
+	"notes": {
+		"normal": {
+			"fillColor": "#a1a250",
+			"strokeColor": "#000000",
+			"radius": "3vh"
+		},
+		"double": {
+			"fillColor": "#ffaaaa",
+			"strokeColor": "#000000",
+			"radius": "3vh"
+		},
+		"reverse": {
+			"fillColor": "#ff0000",
+			"strokeColor": "#000000",
+			"radius": "3vh"
+		}
+	}
+}

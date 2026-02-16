@@ -1,0 +1,23 @@
+.paper-icon {
+	font-size: 64px;
+	text-align: center;
+	filter: drop-shadow(2px 2px 1px #666666);
+}
+
+.paper-icon img {
+	width: auto;
+	max-height: 128px;
+}
+
+.paper-author, .paper-type {
+	color: #7d848a;
+}
+
+.paper-author:after {
+	content: ":";
+}
+
+.paper-name {
+	color: #666666;
+	font-weight: bold;
+}
